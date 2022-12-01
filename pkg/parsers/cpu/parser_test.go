@@ -2,63 +2,38 @@ package cpu
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
-	"os"
 	"testing"
+
+	"github.io/maicher/stbar/pkg/test"
 )
 
-func TestParser_Parse_FileDoesNotExist(t *testing.T) {
-	f, err := ioutil.TempFile("", "test")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	writeStat(f, "cpu  1171962 591604 506805 67668597")
-
-	parser := Parser{filePath: "some path"}
-	_, err = parser.Parse()
-
-	if err == nil {
-		t.Fatalf("Empty error")
-	}
-}
-
 func TestParser_Parse_FileCanNotBeParsed(t *testing.T) {
-	f, err := ioutil.TempFile("", "test")
-	if err != nil {
-		log.Fatal(err)
-	}
+	f := test.NewTempFile()
+	test.WriteLine(f, "cpx  1171962 591604 506805 67668597")
 
-	writeStat(f, "cpx  1171962 591604 506805 67668597")
-
-	parser := Parser{filePath: f.Name()}
-	_, err = parser.Parse()
+	parser := Parser{file: f}
+	_, err := parser.Parse()
 
 	if err == nil {
-		t.Fatalf("Empty error")
+		t.Fatalf("Error nil, want: error")
 	}
 }
 
 func TestParser_Parse_FileCanBeParsed(t *testing.T) {
-	f, err := ioutil.TempFile("", "test")
-	if err != nil {
-		log.Fatal(err)
-	}
+	f := test.NewTempFile()
+	test.WriteLine(f, "cpu  1171962 591604 506805 67668597")
 
-	writeStat(f, "cpu  1171962 591604 506805 67668597")
-
-	parser := Parser{filePath: f.Name()}
+	parser := Parser{file: f}
 	parser.Parse()
 
-	writeStat(f, "cpu  1172013 591650 506843 67673329")
+	test.WriteLine(f, "cpu  1172013 591650 506843 67673329")
 	cpu, err := parser.Parse()
 
 	if load := fmt.Sprintf("%.1f", cpu.Load()); load != "2.8" {
 		t.Fatalf("Load equals: %s, want: 2.8", load)
 	}
-}
 
-func writeStat(f *os.File, s string) {
-	ioutil.WriteFile(f.Name(), []byte(s), 0644)
+	if err != nil {
+		t.Fatalf("Error: %s, want: nil", err)
+	}
 }
