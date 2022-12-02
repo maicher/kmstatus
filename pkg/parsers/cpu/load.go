@@ -5,11 +5,11 @@ import (
 	"os"
 )
 
+const statSrcFile = "/proc/stat"
+
 // Load holds the average CPU load, calculated between the previous and current stats.
 // The result is combined for all cores and is expressed in percentages.
 type Load float64
-
-var statSrcFile = "/proc/stat"
 
 type stat struct {
 	active int
@@ -27,7 +27,7 @@ type LoadParser struct {
 
 func (p *LoadParser) Parse() (Load, error) {
 	var user, nice, system, idle int
-	s := stat{}
+	stat := stat{}
 
 	p.statFile.Seek(0, 0)
 	_, err := fmt.Fscanf(p.statFile, "cpu %d %d %d %d", &user, &nice, &system, &idle)
@@ -35,15 +35,23 @@ func (p *LoadParser) Parse() (Load, error) {
 		return Load(0), fmt.Errorf("cpu Parser %s: %w", p.statFile.Name(), err)
 	}
 
-	s.active = user + nice + system
-	s.idle = idle
+	stat.active = user + nice + system
+	stat.idle = idle
 
-	load := calculateLoad(s, p.stat)
-	p.stat = s
+	load := calculateLoad(stat, p.stat)
+	p.stat = stat
 
 	return load, nil
 }
 
+func (p *LoadParser) Run(ch chan any) {
+	t, err := p.Parse()
+	if err != nil {
+		ch <- err
+	}
+
+	ch <- t
+}
 func NewLoadParser() (*LoadParser, error) {
 	parser := LoadParser{}
 	file, err := os.Open(statSrcFile)

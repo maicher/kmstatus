@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 )
 
+const srcFiles = "/sys/devices/virtual/thermal/thermal_zone*/temp"
+
 // Temp holds temperature values of the CPUs.
 // Each value is for one CPU socket and is expressed in Celsius degrees.
 type Temp []int
-
-var srcFiles = "/sys/devices/virtual/thermal/thermal_zone*/temp"
 
 type TempParser struct {
 	files []*os.File
@@ -24,12 +24,21 @@ func (p *TempParser) Parse() (Temp, error) {
 		f.Seek(0, 0)
 		_, err := fmt.Fscanf(f, "%d", &val)
 		if err != nil {
-			return Temp{}, fmt.Errorf("Temp Parser %s: %w", f.Name(), err)
+			return t, fmt.Errorf("Temp Parser %s: %w", f.Name(), err)
 		}
 		t[i] = val / 1000
 	}
 
 	return t, nil
+}
+
+func (p *TempParser) Run(ch chan any) {
+	t, err := p.Parse()
+	if err != nil {
+		ch <- err
+	}
+
+	ch <- t
 }
 
 func NewTempParser() (*TempParser, error) {

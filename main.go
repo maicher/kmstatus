@@ -2,19 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.io/maicher/stbar/pkg/parsers/cpu"
+	"github.io/maicher/stbar/pkg/parsers/mem"
 )
 
-type CPU struct {
-	Load cpu.Load
-	Freq cpu.Freq
-	Temp cpu.Temp
-}
-
 func main() {
-	c := CPU{}
+	var (
+		f   cpu.Freq
+		l   cpu.Load
+		t   cpu.Temp
+		m   mem.Mem
+		err error
+	)
+
+	ch := make(chan any)
 
 	loadParser, err := cpu.NewLoadParser()
 	if err != nil {
@@ -34,29 +38,56 @@ func main() {
 		return
 	}
 
-	_, err = loadParser.Parse()
+	memParser, err := mem.NewMemParser()
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	time.Sleep(500 * time.Millisecond)
+	go onTick(time.Second, func() {
+		loadParser.Run(ch)
+	})
+	go onTick(time.Second, func() {
+		freqParser.Run(ch)
+	})
+	go onTick(time.Second, func() {
+		tempParser.Run(ch)
+	})
+	go onTick(time.Second, func() {
+		memParser.Run(ch)
+	})
+	go onTick(time.Second, func() {
+		ch <- "render"
+	})
 
-	c.Load, err = loadParser.Parse()
-	if err != nil {
-		fmt.Println(err)
+	for {
+		switch data := (<-ch).(type) {
+		case cpu.Freq:
+			f = data
+		case cpu.Load:
+			l = data
+		case cpu.Temp:
+			t = data
+		case mem.Mem:
+			m = data
+		case string:
+			fmt.Printf("%dMHz | ", f)
+			fmt.Printf("%0.1f%% | ", l)
+			fmt.Printf("%v | ", t)
+			fmt.Printf("M: %d(%d) Swap: %d(%d)\n", m.MemUsed, m.MemTotal, m.SwapUsed, m.SwapTotal)
+		case error:
+			err = data
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+		}
 	}
+}
 
-	c.Freq, err = freqParser.Parse()
-	if err != nil {
-		fmt.Println(err)
+func onTick(interval time.Duration, f func()) {
+	f()
+
+	ticker := time.NewTicker(interval)
+	for range ticker.C {
+
+		f()
 	}
-
-	c.Temp, err = tempParser.Parse()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Printf("CPU: %0.1f%%\n", c.Load)
-	fmt.Printf("Freq: %dMHz\n", c.Freq)
-	fmt.Printf("Temp: %v\n", c.Temp)
 }

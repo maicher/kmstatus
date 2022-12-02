@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 )
 
+const freqSrcfiles = "/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq"
+
 // Freq holds CPU frequency in MHz.
 type Freq int
-
-var freqSrcfiles = "/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq"
 
 type FreqParser struct {
 	files []*os.File
@@ -28,6 +28,15 @@ func (p *FreqParser) Parse() (Freq, error) {
 	}
 
 	return Freq(sum / len(p.files) / 1000), nil
+}
+
+func (p *FreqParser) Run(ch chan any) {
+	t, err := p.Parse()
+	if err != nil {
+		ch <- err
+	}
+
+	ch <- t
 }
 
 func NewFreqParser() (*FreqParser, error) {
