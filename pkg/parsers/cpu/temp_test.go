@@ -1,4 +1,4 @@
-package temp
+package cpu
 
 import (
 	"os"
@@ -7,11 +7,11 @@ import (
 	"github.io/maicher/stbar/pkg/test"
 )
 
-func Test_Parser_Parse_FileCanNotBeParsed(t *testing.T) {
+func Test_TempParser_Parse_FileCanNotBeParsed(t *testing.T) {
 	f := test.NewTempFile()
 	test.WriteLine(f, "bla bla")
 
-	parser := Parser{files: []*os.File{f}}
+	parser := TempParser{files: []*os.File{f}}
 	_, err := parser.Parse()
 
 	if err == nil {
@@ -19,14 +19,14 @@ func Test_Parser_Parse_FileCanNotBeParsed(t *testing.T) {
 	}
 }
 
-func Test_Parser_Parse_FileCanBeParsed(t *testing.T) {
+func Test_TempParser_Parse_FileCanBeParsed(t *testing.T) {
 	f := test.NewTempFile()
 	test.WriteLine(f, "30000")
 
-	parser := Parser{files: []*os.File{f}}
+	parser := TempParser{files: []*os.File{f}}
 	temp, err := parser.Parse()
 
-	if val := temp.Values[0]; val != 30 {
+	if val := temp[0]; val != 30 {
 		t.Fatalf("Temp equals: %d, want: 30", val)
 	}
 

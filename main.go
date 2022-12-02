@@ -5,40 +5,58 @@ import (
 	"time"
 
 	"github.io/maicher/stbar/pkg/parsers/cpu"
-	"github.io/maicher/stbar/pkg/parsers/temp"
 )
 
+type CPU struct {
+	Load cpu.Load
+	Freq cpu.Freq
+	Temp cpu.Temp
+}
+
 func main() {
-	parser, err := cpu.NewParser()
+	c := CPU{}
+
+	loadParser, err := cpu.NewLoadParser()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	_, err = parser.Parse()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	time.Sleep(100 * time.Millisecond)
-
-	c, err := parser.Parse()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Printf("CPU: %f%%\n", c.Load())
-
-	p, err := temp.NewParser()
+	freqParser, err := cpu.NewFreqParser()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	t, err := p.Parse()
+	tempParser, err := cpu.NewTempParser()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	_, err = loadParser.Parse()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("Temp: %v\n", t.Values)
+	time.Sleep(500 * time.Millisecond)
+
+	c.Load, err = loadParser.Parse()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.Freq, err = freqParser.Parse()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.Temp, err = tempParser.Parse()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("CPU: %0.1f%%\n", c.Load)
+	fmt.Printf("Freq: %dMHz\n", c.Freq)
+	fmt.Printf("Temp: %v\n", c.Temp)
 }
