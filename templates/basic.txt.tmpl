@@ -1,0 +1,3 @@
+{{.CPU.Load | round 1}}% {{.CPU.Freq | humanSI 1}}Hz 
+{{range $t := .CPU.Temp}}{{$t}}°{{end}}
+ {{.Mem.MemUsed | human 0}}({{.Mem.MemTotal | human 0}}) Swap: {{.Mem.SwapUsed | human 0}}({{.Mem.SwapTotal | human 0}})

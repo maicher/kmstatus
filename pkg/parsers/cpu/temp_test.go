@@ -24,7 +24,8 @@ func Test_TempParser_Parse_FileCanBeParsed(t *testing.T) {
 	test.WriteLine(f, "30000")
 
 	parser := TempParser{files: []*os.File{f}}
-	temp, err := parser.Parse()
+	v, err := parser.Parse()
+	temp := v.(Temp)
 
 	if val := temp[0]; val != 30 {
 		t.Fatalf("Temp equals: %d, want: 30", val)

@@ -3,6 +3,8 @@ package cpu
 import (
 	"fmt"
 	"os"
+
+	"github.io/maicher/stbar/pkg/parsers"
 )
 
 const statSrcFile = "/proc/stat"
@@ -25,7 +27,7 @@ type LoadParser struct {
 	statFile *os.File
 }
 
-func (p *LoadParser) Parse() (Load, error) {
+func (p *LoadParser) Parse() (any, error) {
 	var user, nice, system, idle int
 	stat := stat{}
 
@@ -44,15 +46,7 @@ func (p *LoadParser) Parse() (Load, error) {
 	return load, nil
 }
 
-func (p *LoadParser) Run(ch chan any) {
-	t, err := p.Parse()
-	if err != nil {
-		ch <- err
-	}
-
-	ch <- t
-}
-func NewLoadParser() (*LoadParser, error) {
+func NewLoadParser() (parsers.Parser, error) {
 	parser := LoadParser{}
 	file, err := os.Open(statSrcFile)
 

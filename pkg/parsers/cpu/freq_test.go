@@ -24,10 +24,11 @@ func Test_FreqParser_Parse_FileCanBeParsed(t *testing.T) {
 	test.WriteLine(f, "1200000")
 
 	parser := FreqParser{files: []*os.File{f}}
-	freq, err := parser.Parse()
+	v, err := parser.Parse()
+	freq := v.(Freq)
 
-	if freq != 1200 {
-		t.Fatalf("Freq equals: %d, want: 1200", freq)
+	if freq != 1200000 {
+		t.Fatalf("Freq equals: %d, want: 1200000", freq)
 	}
 
 	if err != nil {

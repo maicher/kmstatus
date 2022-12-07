@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.io/maicher/stbar/pkg/parsers"
 )
 
 const srcFiles = "/sys/devices/virtual/thermal/thermal_zone*/temp"
@@ -13,10 +15,11 @@ const srcFiles = "/sys/devices/virtual/thermal/thermal_zone*/temp"
 type Temp []int
 
 type TempParser struct {
-	files []*os.File
+	files     []*os.File
+	formatter string
 }
 
-func (p *TempParser) Parse() (Temp, error) {
+func (p *TempParser) Parse() (any, error) {
 	var val int
 	t := Temp(make([]int, len(p.files)))
 
@@ -32,16 +35,7 @@ func (p *TempParser) Parse() (Temp, error) {
 	return t, nil
 }
 
-func (p *TempParser) Run(ch chan any) {
-	t, err := p.Parse()
-	if err != nil {
-		ch <- err
-	}
-
-	ch <- t
-}
-
-func NewTempParser() (*TempParser, error) {
+func NewTempParser() (parsers.Parser, error) {
 	paths, err := filepath.Glob(srcFiles)
 	if err != nil {
 		return nil, fmt.Errorf("Temp Parser: %w", err)

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.io/maicher/stbar/pkg/parsers"
 )
 
 var srcFile = "/proc/meminfo"
@@ -20,7 +22,7 @@ type MemParser struct {
 	File *os.File
 }
 
-func (p *MemParser) Parse() (Mem, error) {
+func (p *MemParser) Parse() (any, error) {
 	var total, free, buffers, cached, swapTotal, swapFree int
 
 	p.scanByLines(func(line string) {
@@ -54,16 +56,7 @@ func (p *MemParser) Parse() (Mem, error) {
 	return m, nil
 }
 
-func (p *MemParser) Run(ch chan any) {
-	t, err := p.Parse()
-	if err != nil {
-		ch <- err
-	}
-
-	ch <- t
-}
-
-func NewMemParser() (*MemParser, error) {
+func NewMemParser() (parsers.Parser, error) {
 	parser := MemParser{}
 	file, err := os.Open(srcFile)
 

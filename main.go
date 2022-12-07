@@ -5,89 +5,45 @@ import (
 	"os"
 	"time"
 
+	"github.io/maicher/stbar/app"
+	"github.io/maicher/stbar/pkg/parsers"
 	"github.io/maicher/stbar/pkg/parsers/cpu"
 	"github.io/maicher/stbar/pkg/parsers/mem"
 )
 
 func main() {
-	var (
-		f   cpu.Freq
-		l   cpu.Load
-		t   cpu.Temp
-		m   mem.Mem
-		err error
-	)
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("Fatal error: %s\n", err)
+			os.Exit(1)
+		}
+	}()
 
+	s := &app.System{}
+	v := app.NewView("basic.txt.tmpl")
 	ch := make(chan any)
 
-	loadParser, err := cpu.NewLoadParser()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	freqParser, err := cpu.NewFreqParser()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	tempParser, err := cpu.NewTempParser()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	memParser, err := mem.NewMemParser()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	go onTick(time.Second, func() {
-		loadParser.Run(ch)
-	})
-	go onTick(time.Second, func() {
-		freqParser.Run(ch)
-	})
-	go onTick(time.Second, func() {
-		tempParser.Run(ch)
-	})
-	go onTick(time.Second, func() {
-		memParser.Run(ch)
-	})
-	go onTick(time.Second, func() {
-		ch <- "render"
-	})
+	pl := parsers.NewParsersList()
+	pl.MustInit(cpu.NewFreqParser, time.Second, true)
+	pl.MustInit(cpu.NewLoadParser, time.Second, true)
+	pl.MustInit(cpu.NewTempParser, time.Second, false)
+	pl.MustInit(mem.NewMemParser, time.Second, false)
+	pl.StartParsing(ch)
 
 	for {
 		switch data := (<-ch).(type) {
 		case cpu.Freq:
-			f = data
+			s.CPU.Freq = data
 		case cpu.Load:
-			l = data
+			s.CPU.Load = data
 		case cpu.Temp:
-			t = data
+			s.CPU.Temp = data
 		case mem.Mem:
-			m = data
+			s.Mem = data
 		case string:
-			fmt.Printf("%dMHz | ", f)
-			fmt.Printf("%0.1f%% | ", l)
-			fmt.Printf("%v | ", t)
-			fmt.Printf("M: %d(%d) Swap: %d(%d)\n", m.MemUsed, m.MemTotal, m.SwapUsed, m.SwapTotal)
+			fmt.Println(v.Render(s))
 		case error:
-			err = data
-			fmt.Fprintf(os.Stderr, "%s\n", err)
+			fmt.Fprintf(os.Stderr, "%s\n", data)
 		}
-	}
-}
-
-func onTick(interval time.Duration, f func()) {
-	f()
-
-	ticker := time.NewTicker(interval)
-	for range ticker.C {
-
-		f()
 	}
 }

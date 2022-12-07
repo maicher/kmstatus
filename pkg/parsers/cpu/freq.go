@@ -4,18 +4,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.io/maicher/stbar/pkg/parsers"
 )
 
 const freqSrcfiles = "/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq"
 
-// Freq holds CPU frequency in MHz.
+// Freq holds CPU frequency in kHz.
 type Freq int
 
 type FreqParser struct {
 	files []*os.File
 }
 
-func (p *FreqParser) Parse() (Freq, error) {
+func (p *FreqParser) Parse() (any, error) {
 	var val, sum int
 
 	for _, f := range p.files {
@@ -27,23 +29,16 @@ func (p *FreqParser) Parse() (Freq, error) {
 		sum = sum + val
 	}
 
-	return Freq(sum / len(p.files) / 1000), nil
+	f := Freq(sum / len(p.files))
+
+	return f, nil
 }
 
-func (p *FreqParser) Run(ch chan any) {
-	t, err := p.Parse()
-	if err != nil {
-		ch <- err
-	}
-
-	ch <- t
-}
-
-func NewFreqParser() (*FreqParser, error) {
+func NewFreqParser() (parsers.Parser, error) {
 	parser := FreqParser{}
 	paths, err := filepath.Glob(freqSrcfiles)
 	if err != nil {
-		return nil, fmt.Errorf("cpu Parser: %w", err)
+		return &parser, fmt.Errorf("cpu Parser: %w", err)
 	}
 
 	parser.files = make([]*os.File, len(paths))

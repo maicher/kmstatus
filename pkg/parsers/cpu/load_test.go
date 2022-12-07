@@ -27,7 +27,8 @@ func TestLoadParser_Parse_FileCanBeParsed(t *testing.T) {
 	parser.Parse()
 
 	test.WriteLine(f, "cpu  1172013 591650 506843 67673329")
-	load, err := parser.Parse()
+	v, err := parser.Parse()
+	load := v.(Load)
 
 	if l := fmt.Sprintf("%.1f", load); l != "2.8" {
 		t.Fatalf("Load equals: %s, want: 2.8", l)

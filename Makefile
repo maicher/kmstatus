@@ -3,8 +3,8 @@
 build:
 	go build .
 
-run:
-	go run .
+run: build
+	./stbar
 
 test:
 	go test -cover ./...
@@ -12,7 +12,7 @@ test:
 clean:
 	rm -f stbar
 
-install:
+install: build
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f stbar ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/stbar
