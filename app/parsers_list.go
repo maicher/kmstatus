@@ -1,35 +1,33 @@
-package parsers
+package app
 
 import (
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.io/maicher/stbar/pkg/parsers"
 )
 
-type NewParserFunc func() (Parser, error)
-
-type Parser interface {
-	Parse() (any, error)
-}
+type Render struct{}
 
 type ParserWithInterval struct {
-	parser   Parser
+	parser   parsers.Parser
 	interval time.Duration
 }
 
-type Controller struct {
+type ParsersList struct {
 	parsers               []ParserWithInterval
 	parsersSensitiveToSig []ParserWithInterval
 }
 
-func NewParsersList() *Controller {
-	return &Controller{
+func NewParsersList() *ParsersList {
+	return &ParsersList{
 		parsers: []ParserWithInterval{},
 	}
 }
 
-func (c *Controller) MustInit(newParser NewParserFunc, interval time.Duration, sensitiveToSig bool) {
+func (pl *ParsersList) MustInit(newParser parsers.NewParserFunc, interval time.Duration, sensitiveToSig bool) {
 	p, err := newParser()
 	if err != nil {
 		panic(err)
@@ -40,15 +38,15 @@ func (c *Controller) MustInit(newParser NewParserFunc, interval time.Duration, s
 		interval: interval,
 	}
 
-	c.parsers = append(c.parsers, pi)
+	pl.parsers = append(pl.parsers, pi)
 	if sensitiveToSig {
-		c.parsersSensitiveToSig = append(c.parsersSensitiveToSig, pi)
+		pl.parsersSensitiveToSig = append(pl.parsersSensitiveToSig, pi)
 	}
 }
 
-func (c *Controller) StartParsing(ch chan<- any) {
+func (pl *ParsersList) StartParsing(ch chan<- any) {
 	// Parse periodically
-	for _, p := range c.parsers {
+	for _, p := range pl.parsers {
 		go func(p ParserWithInterval) {
 			onTick(p.interval, func() {
 				parse(p.parser, ch)
@@ -58,19 +56,19 @@ func (c *Controller) StartParsing(ch chan<- any) {
 
 	// Parse data on signal.
 	go onSignal(syscall.SIGUSR1, func() {
-		for _, p := range c.parsersSensitiveToSig {
+		for _, p := range pl.parsersSensitiveToSig {
 			parse(p.parser, ch)
 		}
 
-		ch <- "render"
+		ch <- Render{}
 	})
 
 	go onTick(time.Second, func() {
-		ch <- "render"
+		ch <- Render{}
 	})
 }
 
-func parse(p Parser, ch chan<- any) {
+func parse(p parsers.Parser, ch chan<- any) {
 	v, err := p.Parse()
 	if err != nil {
 		ch <- err
