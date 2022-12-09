@@ -6,12 +6,12 @@ import (
 	"text/template"
 )
 
-type View struct {
+type view struct {
 	tmplName string
 	tmpl     *template.Template
 }
 
-func (v *View) Render(d *Data) string {
+func (v *view) render(d *data) string {
 	b := bytes.Buffer{}
 	err := v.tmpl.ExecuteTemplate(&b, v.tmplName, d)
 	if err != nil {
@@ -21,13 +21,13 @@ func (v *View) Render(d *Data) string {
 	return strings.ReplaceAll(b.String(), "\n", "")
 }
 
-func NewView(t string) *View {
+func newView(t string) *view {
 	tmpl, err := template.New(t).Funcs(helpers).ParseFiles("app/templates/" + t)
 	if err != nil {
 		panic(err)
 	}
 
-	return &View{
+	return &view{
 		tmplName: t,
 		tmpl:     tmpl,
 	}

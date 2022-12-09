@@ -12,13 +12,13 @@ import (
 	"github.io/maicher/stbar/pkg/parsers/mem"
 )
 
-type Render struct{}
+type render struct{}
 
 type Controller struct {
-	view                  *View
+	view                  *view
 	interval              time.Duration
-	parsers               []ParserWithInterval
-	parsersSensitiveToSig []ParserWithInterval
+	parsers               []parser
+	parsersSensitiveToSig []parser
 }
 
 func (c *Controller) Loop() {
@@ -40,17 +40,17 @@ func NewController() *Controller {
 	}()
 
 	c := &Controller{
-		view:                  NewView("basic.txt.tmpl"),
+		view:                  newView("basic.txt.tmpl"),
 		interval:              time.Second,
-		parsers:               []ParserWithInterval{},
-		parsersSensitiveToSig: []ParserWithInterval{},
+		parsers:               []parser{},
+		parsersSensitiveToSig: []parser{},
 	}
 
-	pb := NewParsersBuilder(c)
-	pb.MustInit(cpu.NewFreqParser, time.Second, true)
-	pb.MustInit(cpu.NewLoadParser, time.Second, true)
-	pb.MustInit(cpu.NewTempParser, time.Second, false)
-	pb.MustInit(mem.NewMemParser, time.Second, false)
+	pb := newParsersBuilder(c)
+	pb.mustInit(cpu.NewFreqParser, time.Second, true)
+	pb.mustInit(cpu.NewLoadParser, time.Second, true)
+	pb.mustInit(cpu.NewTempParser, time.Second, false)
+	pb.mustInit(mem.NewMemParser, time.Second, false)
 
 	return c
 }
@@ -58,7 +58,7 @@ func NewController() *Controller {
 // Parse periodically
 func (c *Controller) startParsingPeriodically(ch chan<- any) {
 	for _, p := range c.parsers {
-		go func(p ParserWithInterval) {
+		go func(p parser) {
 			onTick(p.interval, func() {
 				parse(p.parser, ch)
 			})
@@ -73,19 +73,19 @@ func (c *Controller) startParsingOnSig(ch chan<- any) {
 			parse(p.parser, ch)
 		}
 
-		ch <- Render{}
+		ch <- render{}
 	})
 }
 
 // Render
 func (c *Controller) startRendering(ch chan<- any) {
 	go onTick(c.interval, func() {
-		ch <- Render{}
+		ch <- render{}
 	})
 }
 
 func (c *Controller) aggregateAndRender(ch <-chan any) {
-	d := &Data{}
+	d := &data{}
 
 	for {
 		switch data := (<-ch).(type) {
@@ -97,8 +97,8 @@ func (c *Controller) aggregateAndRender(ch <-chan any) {
 			d.CPU.Temp = data
 		case mem.Mem:
 			d.Mem = data
-		case Render:
-			fmt.Println(c.view.Render(d))
+		case render:
+			fmt.Println(c.view.render(d))
 		case error:
 			fmt.Fprintf(os.Stderr, "%s\n", data)
 		}

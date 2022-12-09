@@ -5,7 +5,7 @@ import (
 	"github.io/maicher/stbar/pkg/parsers/mem"
 )
 
-type Data struct {
+type data struct {
 	CPU cpu.CPU
 	Mem mem.Mem
 }

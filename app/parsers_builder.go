@@ -6,28 +6,30 @@ import (
 	"github.io/maicher/stbar/pkg/parsers"
 )
 
-type ParserWithInterval struct {
+type newParserFunc func() (parsers.Parser, error)
+
+type parser struct {
 	parser   parsers.Parser
 	interval time.Duration
 }
 
-type ParsersBuilder struct {
+type parsersBuilder struct {
 	controller *Controller
 }
 
-func NewParsersBuilder(c *Controller) *ParsersBuilder {
-	return &ParsersBuilder{
+func newParsersBuilder(c *Controller) *parsersBuilder {
+	return &parsersBuilder{
 		controller: c,
 	}
 }
 
-func (pl *ParsersBuilder) MustInit(newParser parsers.NewParserFunc, interval time.Duration, sensitiveToSig bool) {
+func (pl *parsersBuilder) mustInit(newParser newParserFunc, interval time.Duration, sensitiveToSig bool) {
 	p, err := newParser()
 	if err != nil {
 		panic(err)
 	}
 
-	pi := ParserWithInterval{
+	pi := parser{
 		parser:   p,
 		interval: interval,
 	}
