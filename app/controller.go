@@ -12,23 +12,28 @@ import (
 	"github.io/maicher/stbar/pkg/parsers/mem"
 )
 
-type render struct{}
+const sig = syscall.SIGUSR1
+
+type renderCommand struct{}
 
 type Controller struct {
-	view                  *view
-	interval              time.Duration
-	parsers               []parser
-	parsersSensitiveToSig []parser
+	view            *view
+	renderInterval  time.Duration
+	periodicParsers []*periodicParser
+	onSigParsers    []parsers.Parser
 }
 
 func (c *Controller) Loop() {
 	ch := make(chan any)
 
-	c.startParsingPeriodically(ch)
-	c.startParsingOnSig(ch)
-	c.startRendering(ch)
+	for _, p := range c.periodicParsers {
+		go c.parsePeriodically(p, ch)
+	}
 
-	c.aggregateAndRender(ch)
+	go c.parseOnSig(ch)
+	go c.generateRenderCommands(ch)
+
+	c.aggregateDataAndRenderView(ch)
 }
 
 func NewController() *Controller {
@@ -40,10 +45,8 @@ func NewController() *Controller {
 	}()
 
 	c := &Controller{
-		view:                  newView("basic.txt.tmpl"),
-		interval:              time.Second,
-		parsers:               []parser{},
-		parsersSensitiveToSig: []parser{},
+		view:           newView("basic.txt.tmpl"),
+		renderInterval: time.Second,
 	}
 
 	pb := newParsersBuilder(c)
@@ -56,35 +59,31 @@ func NewController() *Controller {
 }
 
 // Parse periodically
-func (c *Controller) startParsingPeriodically(ch chan<- any) {
-	for _, p := range c.parsers {
-		go func(p parser) {
-			onTick(p.interval, func() {
-				parse(p.parser, ch)
-			})
-		}(p)
-	}
+func (c *Controller) parsePeriodically(p *periodicParser, ch chan<- any) {
+	onTick(p.interval, func() {
+		parse(p.parser, ch)
+	})
 }
 
 // Parse data on signal.
-func (c *Controller) startParsingOnSig(ch chan<- any) {
-	go onSignal(syscall.SIGUSR1, func() {
-		for _, p := range c.parsersSensitiveToSig {
-			parse(p.parser, ch)
+func (c *Controller) parseOnSig(ch chan<- any) {
+	onSig(sig, func() {
+		for _, p := range c.onSigParsers {
+			parse(p, ch)
 		}
 
-		ch <- render{}
+		ch <- renderCommand{}
 	})
 }
 
 // Render
-func (c *Controller) startRendering(ch chan<- any) {
-	go onTick(c.interval, func() {
-		ch <- render{}
+func (c *Controller) generateRenderCommands(ch chan<- any) {
+	onTick(c.renderInterval, func() {
+		ch <- renderCommand{}
 	})
 }
 
-func (c *Controller) aggregateAndRender(ch <-chan any) {
+func (c *Controller) aggregateDataAndRenderView(ch <-chan any) {
 	d := &data{}
 
 	for {
@@ -97,7 +96,7 @@ func (c *Controller) aggregateAndRender(ch <-chan any) {
 			d.CPU.Temp = data
 		case mem.Mem:
 			d.Mem = data
-		case render:
+		case renderCommand:
 			fmt.Println(c.view.render(d))
 		case error:
 			fmt.Fprintf(os.Stderr, "%s\n", data)
@@ -119,12 +118,11 @@ func onTick(interval time.Duration, f func()) {
 
 	ticker := time.NewTicker(interval)
 	for range ticker.C {
-
 		f()
 	}
 }
 
-func onSignal(s os.Signal, f func()) {
+func onSig(s os.Signal, f func()) {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, s)
 

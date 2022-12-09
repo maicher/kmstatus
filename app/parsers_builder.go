@@ -8,19 +8,8 @@ import (
 
 type newParserFunc func() (parsers.Parser, error)
 
-type parser struct {
-	parser   parsers.Parser
-	interval time.Duration
-}
-
 type parsersBuilder struct {
 	controller *Controller
-}
-
-func newParsersBuilder(c *Controller) *parsersBuilder {
-	return &parsersBuilder{
-		controller: c,
-	}
 }
 
 func (pl *parsersBuilder) mustInit(newParser newParserFunc, interval time.Duration, sensitiveToSig bool) {
@@ -29,14 +18,20 @@ func (pl *parsersBuilder) mustInit(newParser newParserFunc, interval time.Durati
 		panic(err)
 	}
 
-	pi := parser{
+	pi := &periodicParser{
 		parser:   p,
 		interval: interval,
 	}
 
-	pl.controller.parsers = append(pl.controller.parsers, pi)
+	pl.controller.periodicParsers = append(pl.controller.periodicParsers, pi)
 
 	if sensitiveToSig {
-		pl.controller.parsersSensitiveToSig = append(pl.controller.parsersSensitiveToSig, pi)
+		pl.controller.onSigParsers = append(pl.controller.onSigParsers, p)
+	}
+}
+
+func newParsersBuilder(c *Controller) *parsersBuilder {
+	return &parsersBuilder{
+		controller: c,
 	}
 }
