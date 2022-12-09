@@ -1,10 +1,8 @@
-# Stbar
+# kmstatus
 
-Status Bar
+## How to run
 
-# How to run
-
-	stbar 2> error.log
+	kmstatus 2> error.log
 
 Booting phase is when parsers are getting initialized.
 After this, parsers periodically parse system files to read and display the data.

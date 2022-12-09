@@ -3,7 +3,7 @@ package app
 import (
 	"time"
 
-	"github.io/maicher/stbar/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
 type newParserFunc func() (parsers.Parser, error)

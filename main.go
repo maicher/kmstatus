@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.io/maicher/stbar/app"
+	"github.io/maicher/kmstatus/app"
 )
 
 func main() {

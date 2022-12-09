@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"text/template"
 
-	"github.io/maicher/stbar/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 )
 
 var helpers = template.FuncMap{

@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.io/maicher/stbar/pkg/parsers/cpu"
-	"github.io/maicher/stbar/pkg/parsers/mem"
+	"github.io/maicher/kmstatus/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
 type data struct {

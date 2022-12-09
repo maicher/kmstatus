@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.io/maicher/stbar/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
 const statSrcFile = "/proc/stat"

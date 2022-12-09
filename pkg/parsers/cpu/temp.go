@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.io/maicher/stbar/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
 const srcFiles = "/sys/devices/virtual/thermal/thermal_zone*/temp"

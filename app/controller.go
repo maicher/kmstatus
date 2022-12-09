@@ -7,9 +7,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.io/maicher/stbar/pkg/parsers"
-	"github.io/maicher/stbar/pkg/parsers/cpu"
-	"github.io/maicher/stbar/pkg/parsers/mem"
+	"github.io/maicher/kmstatus/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
 const sig = syscall.SIGUSR1

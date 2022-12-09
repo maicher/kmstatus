@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.io/maicher/stbar/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
 var srcFile = "/proc/meminfo"

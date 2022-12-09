@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.io/maicher/stbar/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
 const freqSrcfiles = "/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq"
