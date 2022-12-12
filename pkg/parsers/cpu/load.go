@@ -34,7 +34,7 @@ func (p *LoadParser) Parse() (any, error) {
 	p.statFile.Seek(0, 0)
 	_, err := fmt.Fscanf(p.statFile, "cpu %d %d %d %d", &user, &nice, &system, &idle)
 	if err != nil {
-		return Load(0), fmt.Errorf("cpu Parser %s: %w", p.statFile.Name(), err)
+		return Load(0), fmt.Errorf("Load parser %s: %w", p.statFile.Name(), err)
 	}
 
 	stat.active = user + nice + system
@@ -51,7 +51,7 @@ func NewLoadParser() (parsers.Parser, error) {
 	file, err := os.Open(statSrcFile)
 
 	if err != nil {
-		return &parser, fmt.Errorf("CPU Parser: %w", err)
+		return &parser, fmt.Errorf("Load parser: %w", err)
 	}
 
 	parser.statFile = file

@@ -27,7 +27,7 @@ func (p *TempParser) Parse() (any, error) {
 		f.Seek(0, 0)
 		_, err := fmt.Fscanf(f, "%d", &val)
 		if err != nil {
-			return t, fmt.Errorf("Temp Parser %s: %w", f.Name(), err)
+			return t, fmt.Errorf("Temp parser %s: %w", f.Name(), err)
 		}
 		t[i] = val / 1000
 	}
@@ -38,7 +38,7 @@ func (p *TempParser) Parse() (any, error) {
 func NewTempParser() (parsers.Parser, error) {
 	paths, err := filepath.Glob(srcFiles)
 	if err != nil {
-		return nil, fmt.Errorf("Temp Parser: %w", err)
+		return nil, fmt.Errorf("Temp parser: %w", err)
 	}
 
 	parser := TempParser{
@@ -46,13 +46,13 @@ func NewTempParser() (parsers.Parser, error) {
 	}
 
 	if len(paths) == 0 {
-		return &parser, fmt.Errorf("Temp Parser no files matching the pattern %s", srcFiles)
+		return &parser, fmt.Errorf("Temp parser: no files matching the pattern %s", srcFiles)
 	}
 
 	for i, p := range paths {
 		file, err := os.Open(p)
 		if err != nil {
-			return &parser, fmt.Errorf("Temp Parser: %w", err)
+			return &parser, fmt.Errorf("Temp parser: %w", err)
 		}
 
 		parser.files[i] = file

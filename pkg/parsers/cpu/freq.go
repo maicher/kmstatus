@@ -24,7 +24,7 @@ func (p *FreqParser) Parse() (any, error) {
 		f.Seek(0, 0)
 		_, err := fmt.Fscanf(f, "%d", &val)
 		if err != nil {
-			return Freq(0), fmt.Errorf("freq Parser %s: %w", f.Name(), err)
+			return Freq(0), fmt.Errorf("Freq parser %s: %w", f.Name(), err)
 		}
 		sum = sum + val
 	}
@@ -38,19 +38,19 @@ func NewFreqParser() (parsers.Parser, error) {
 	parser := FreqParser{}
 	paths, err := filepath.Glob(freqSrcfiles)
 	if err != nil {
-		return &parser, fmt.Errorf("cpu Parser: %w", err)
+		return &parser, fmt.Errorf("Freq parser: %w", err)
 	}
 
 	parser.files = make([]*os.File, len(paths))
 
 	if len(paths) == 0 {
-		return &parser, fmt.Errorf("cpu Parser no files matching the pattern %s", freqSrcfiles)
+		return &parser, fmt.Errorf("Freq parser: no files matching the pattern %s", freqSrcfiles)
 	}
 
 	for i, p := range paths {
 		file, err := os.Open(p)
 		if err != nil {
-			return &parser, fmt.Errorf("cpu Parser: %w", err)
+			return &parser, fmt.Errorf("Freq parser: %w", err)
 		}
 
 		parser.files[i] = file

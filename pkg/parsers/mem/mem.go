@@ -61,7 +61,7 @@ func NewMemParser() (parsers.Parser, error) {
 	file, err := os.Open(srcFile)
 
 	if err != nil {
-		return &parser, fmt.Errorf("mem Parser: %w", err)
+		return &parser, fmt.Errorf("Mem parser: %w", err)
 	}
 
 	parser.File = file
