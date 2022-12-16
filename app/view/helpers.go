@@ -1,4 +1,4 @@
-package app
+package view
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 )
 
+// Helper functions to be used in the templates.
 var helpers = template.FuncMap{
 	"round":   round,
 	"human":   human,

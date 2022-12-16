@@ -7,6 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.io/maicher/kmstatus/app/config"
+	"github.io/maicher/kmstatus/app/view"
 	"github.io/maicher/kmstatus/pkg/parsers"
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
@@ -14,10 +16,10 @@ import (
 
 const sig = syscall.SIGUSR1
 
-type renderCommand struct{}
+type renderView struct{}
 
 type Controller struct {
-	view            *view
+	view            *view.View
 	renderInterval  time.Duration
 	periodicParsers []*periodicParser
 	onSigParsers    []parsers.Parser
@@ -36,16 +38,21 @@ func (c *Controller) Loop() {
 	c.aggregateDataAndRenderView(ch)
 }
 
-func NewController() *Controller {
+func NewController(conf *config.Config) (c *Controller, err error) {
 	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("Fatal error: %s\n", err)
-			os.Exit(1)
+		if r := recover(); r != nil {
+			c = &Controller{}
+			err = r.(error)
 		}
 	}()
 
-	c := &Controller{
-		view:           newView("basic.txt.tmpl"),
+	v, err := view.New(conf)
+	if err != nil {
+		return c, err
+	}
+
+	c = &Controller{
+		view:           v,
 		renderInterval: time.Second,
 	}
 
@@ -55,7 +62,7 @@ func NewController() *Controller {
 	pb.mustInit(cpu.NewTempParser, time.Second, false)
 	pb.mustInit(mem.NewMemParser, time.Second, false)
 
-	return c
+	return c, nil
 }
 
 // Parse periodically
@@ -72,34 +79,34 @@ func (c *Controller) parseOnSig(ch chan<- any) {
 			parse(p, ch)
 		}
 
-		ch <- renderCommand{}
+		ch <- renderView{}
 	})
 }
 
 // Render
 func (c *Controller) generateRenderCommands(ch chan<- any) {
 	onTick(c.renderInterval, func() {
-		ch <- renderCommand{}
+		ch <- renderView{}
 	})
 }
 
 func (c *Controller) aggregateDataAndRenderView(ch <-chan any) {
-	d := &data{}
+	d := &view.Data{}
 
 	for {
-		switch data := (<-ch).(type) {
+		switch val := (<-ch).(type) {
 		case cpu.Freq:
-			d.CPU.Freq = data
+			d.CPU.Freq = val
 		case cpu.Load:
-			d.CPU.Load = data
+			d.CPU.Load = val
 		case cpu.Temp:
-			d.CPU.Temp = data
+			d.CPU.Temp = val
 		case mem.Mem:
-			d.Mem = data
-		case renderCommand:
-			fmt.Println(c.view.render(d))
+			d.Mem = val
+		case renderView:
+			fmt.Println(c.view.Render(d))
 		case error:
-			fmt.Fprintf(os.Stderr, "%s\n", data)
+			fmt.Fprintf(os.Stderr, "%s\n", val)
 		}
 	}
 }

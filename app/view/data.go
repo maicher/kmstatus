@@ -1,11 +1,11 @@
-package app
+package view
 
 import (
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
-type data struct {
+type Data struct {
 	CPU cpu.CPU
 	Mem mem.Mem
 }
