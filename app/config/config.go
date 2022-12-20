@@ -6,6 +6,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"github.io/maicher/kmstatus/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
 const help = `NAME
@@ -32,16 +37,35 @@ ENVIRONMENT VARIABLES
 
 const DefaultTemplateName = "default.tmpl"
 
+type NewParserFunc func() (parsers.Parser, error)
+
+type ParserConfig struct {
+	Name          string
+	NewParserFunc NewParserFunc
+	Interval      time.Duration
+	OnSig         bool
+}
+
 type Config struct {
 	PrintConfig   bool
 	PrintTemplate bool
 
-	TemplateName string
+	TemplateName  string
+	ParserConfigs []ParserConfig
 }
 
-// Parse parses the command line options and initializes the Config struct.
+func (c *Config) setFlags(pc *ParserConfig, f NewParserFunc, name string, interval time.Duration, onSig bool) {
+	pc.NewParserFunc = f
+	pc.Name = name
+	flag.DurationVar(&(pc.Interval), name, interval, "")
+	flag.BoolVar(&(pc.OnSig), name+"sig", onSig, "")
+}
+
+// Parse parses the command line options to the Config struct.
 func Parse() *Config {
-	c := &Config{}
+	c := &Config{
+		ParserConfigs: make([]ParserConfig, 4),
+	}
 
 	flag.BoolVar(&c.PrintConfig, "print-config", false, "")
 	flag.BoolVar(&c.PrintConfig, "C", false, "")
@@ -51,6 +75,11 @@ func Parse() *Config {
 
 	flag.StringVar(&c.TemplateName, "template-name", "default.tmpl", "")
 	flag.StringVar(&c.TemplateName, "t", DefaultTemplateName, "")
+
+	c.setFlags(&(c.ParserConfigs[0]), cpu.NewFreqParser, "cpu-freq", time.Second, false)
+	c.setFlags(&(c.ParserConfigs[1]), cpu.NewLoadParser, "cpu-load", time.Second, false)
+	c.setFlags(&(c.ParserConfigs[2]), cpu.NewTempParser, "cpu-temp", time.Second, false)
+	c.setFlags(&(c.ParserConfigs[3]), mem.NewMemParser, "mem", time.Second, false)
 
 	f := flag.CommandLine.Output()
 	flag.Usage = func() { fmt.Fprintf(f, help) }
