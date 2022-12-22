@@ -22,6 +22,9 @@ SYNOPSIS
 OPTIONS
   --print-config, -C     print config and exit
   --print-template, -T   print the default template and exit
+
+  --xwindow, -x          print output to default's window WM_NAME (instead stdout)
+                         (to use this option kmstatus needs to be build with -tag X)
   --template-name, -t    name of the template to use (default: ` + DefaultTemplateName + `)
 
 SIGNALS
@@ -52,6 +55,8 @@ type Config struct {
 
 	TemplateName  string
 	ParserConfigs []ParserConfig
+
+	XWindow bool
 }
 
 func (c *Config) setFlags(pc *ParserConfig, f NewParserFunc, name string, interval time.Duration, onSig bool) {
@@ -80,6 +85,9 @@ func Parse() *Config {
 	c.setFlags(&(c.ParserConfigs[1]), cpu.NewLoadParser, "cpu-load", time.Second, false)
 	c.setFlags(&(c.ParserConfigs[2]), cpu.NewTempParser, "cpu-temp", time.Second, false)
 	c.setFlags(&(c.ParserConfigs[3]), mem.NewMemParser, "mem", time.Second, false)
+
+	flag.BoolVar(&c.XWindow, "xwindow", false, "")
+	flag.BoolVar(&c.XWindow, "x", false, "")
 
 	f := flag.CommandLine.Output()
 	flag.Usage = func() { fmt.Fprintf(f, help) }

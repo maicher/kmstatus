@@ -7,27 +7,33 @@ import (
 	"text/template"
 
 	"github.io/maicher/kmstatus/app/config"
+	"github.io/maicher/kmstatus/app/view/out"
 )
 
 const DefaultTemplate = `{{.CPU.Load | round 1}}% {{.CPU.Freq | humanSI 1}}Hz 
 {{range $t := .CPU.Temp}}{{$t}}°{{end}}
  {{.Mem.MemUsed | human 0}}({{.Mem.MemTotal | human 0}}) Swap: {{.Mem.SwapUsed | human 0}}({{.Mem.SwapTotal | human 0}})`
 
+type StatusSetter interface {
+	SetStatus(string)
+}
+
 type View struct {
 	templateName string
 	templates    *template.Template
+	display      StatusSetter
 }
 
 type RenderView struct{}
 
-func (v *View) Render(d *Data) string {
+func (v *View) Render(d *Data) {
 	b := bytes.Buffer{}
 	err := v.templates.ExecuteTemplate(&b, v.templateName, d)
 	if err != nil {
 		panic(err)
 	}
 
-	return strings.ReplaceAll(b.String(), "\n", "")
+	v.display.SetStatus(strings.ReplaceAll(b.String(), "\n", ""))
 }
 
 func New(conf *config.Config) (*View, error) {
@@ -39,6 +45,15 @@ func New(conf *config.Config) (*View, error) {
 	v := &View{
 		templateName: path.Base(conf.TemplateName),
 		templates:    t,
+	}
+
+	if conf.XWindow {
+		v.display, err = out.NewWindow()
+	} else {
+		v.display, err = out.NewStd()
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return v, nil

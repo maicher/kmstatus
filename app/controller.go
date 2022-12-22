@@ -35,7 +35,7 @@ func (c *Controller) AggregateDataAndRenderView() {
 		case mem.Mem:
 			d.Mem = val
 		case view.RenderView:
-			fmt.Println(c.View.Render(d))
+			c.View.Render(d)
 		case error:
 			fmt.Fprintf(os.Stderr, "%s\n", val)
 		}

@@ -19,6 +19,7 @@ func main() {
 	}
 
 	if conf.PrintConfig {
+		fmt.Printf("%s %t\n", "xwindow", conf.XWindow)
 		for _, p := range conf.ParserConfigs {
 			fmt.Printf("%s %s\n", p.Name, p.Interval)
 			fmt.Printf("%s-sig %t\n", p.Name, p.OnSig)
