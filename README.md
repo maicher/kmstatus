@@ -48,7 +48,7 @@ To customize either pass the given parsing option via command line args:
 	cpu-temp 1s
 
 Or provide a configuration file.
-Put each option in new line as a space-separated pair, eg:
+Put each option in a new line as a space-separated pair, eg:
 
 	$ cat ~/.config/kmstatus/kmstatusrc
 	cpu-freq 1s

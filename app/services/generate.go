@@ -16,17 +16,19 @@ type Generate struct {
 func NewGenerate(ch chan<- any, pc []config.ParserConfig) *Generate {
 	return &Generate{
 		Ch:       ch,
-		Interval: calculateMinIntercal(pc),
+		Interval: calculateMinInterval(pc),
 	}
 }
 
 func (g *Generate) Loop() {
-	onTick(g.Interval, func() {
-		g.Ch <- view.RenderView{}
-	})
+	go func() {
+		onTick(g.Interval, func() {
+			g.Ch <- view.RenderView{}
+		})
+	}()
 }
 
-func calculateMinIntercal(pc []config.ParserConfig) time.Duration {
+func calculateMinInterval(pc []config.ParserConfig) time.Duration {
 	var intervals []int
 
 	for _, v := range pc {
