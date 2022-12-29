@@ -2,6 +2,7 @@ package view
 
 import (
 	"bytes"
+	"log"
 	"path"
 	"strings"
 	"text/template"
@@ -34,6 +35,10 @@ func (v *View) Render(d *Data) {
 	}
 
 	v.display.SetStatus(strings.ReplaceAll(b.String(), "\n", ""))
+}
+
+func (v *View) RenderErr(e error) {
+	log.Println(e)
 }
 
 func New(conf *config.Config) (*View, error) {

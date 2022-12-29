@@ -1,20 +1,22 @@
 package app
 
 import (
-	"fmt"
-	"os"
-
 	"github.io/maicher/kmstatus/app/view"
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
-type Controller struct {
-	Ch   <-chan any
-	View *view.View
+type viewRenderer interface {
+	Render(*view.Data)
+	RenderErr(error)
 }
 
-func NewController(ch <-chan any, v *view.View) *Controller {
+type Controller struct {
+	Ch   <-chan any
+	View viewRenderer
+}
+
+func NewController(ch <-chan any, v viewRenderer) *Controller {
 	return &Controller{
 		Ch:   ch,
 		View: v,
@@ -37,7 +39,7 @@ func (c *Controller) AggregateDataAndRenderView() {
 		case view.RenderView:
 			c.View.Render(d)
 		case error:
-			fmt.Fprintf(os.Stderr, "%s\n", val)
+			c.View.RenderErr(val)
 		}
 	}
 }
