@@ -3,6 +3,7 @@ package app
 import (
 	"github.io/maicher/kmstatus/app/view"
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/filesystem"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
@@ -36,6 +37,8 @@ func (c *Controller) AggregateDataAndRenderView() {
 			d.CPU.Temp = val
 		case mem.Mem:
 			d.Mem = val
+		case filesystem.FS:
+			d.FS = val
 		case view.RenderView:
 			c.View.Render(d)
 		case error:

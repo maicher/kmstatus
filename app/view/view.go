@@ -11,9 +11,21 @@ import (
 	"github.io/maicher/kmstatus/app/view/out"
 )
 
-const DefaultTemplate = `{{.CPU.Load | round 1}}% {{.CPU.Freq | humanSI 1}}Hz 
-{{range $t := .CPU.Temp}}{{$t}}°{{end}}
- {{.Mem.MemUsed | human 0}}({{.Mem.MemTotal | human 0}}) Swap: {{.Mem.SwapUsed | human 0}}({{.Mem.SwapTotal | human 0}})`
+const DefaultTemplate = `{{.CPU.Load | round 1}}% {{.CPU.Freq | humanSI 1}}Hz
+ 
+{{range $t := .CPU.Temp}}
+  {{- $t}}°
+{{end}}
+ 
+{{.Mem.MemUsed | human 0}}({{.Mem.MemTotal | human 0}})
+ 
+Swap: {{.Mem.SwapUsed | human 0}}({{.Mem.SwapTotal | human 0}})
+
+{{range $d := .FS.Drives}}
+ {{$d.Free | human 0}}({{$d.Total | human 0}})
+{{end}}
+{{if .FS.ENCFS}}ﲙ{{end}}
+ `
 
 type StatusSetter interface {
 	SetStatus(string)

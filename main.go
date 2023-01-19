@@ -32,7 +32,7 @@ func main() {
 	ch := make(chan any)
 	parsePeriodically := services.NewParsePeriodically(ch, conf.ParserConfigs)
 	parseOnSig := services.NewParseOnSig(ch, conf.ParserConfigs)
-	generate := services.NewGenerate(ch, conf.ParserConfigs)
+	generate := services.NewGenerateTicks(ch, conf.ParserConfigs)
 	v, err := view.New(conf)
 	if err != nil {
 		fmt.Println(err)

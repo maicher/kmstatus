@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Filesystem      1K-blocks       Used  Available Use% Mounted on
+dev               8009212          0    8009212   0% /dev
+run              16407032       1780   16405252   1% /run
+/dev/nvme0n1p3   65478188   28093360   34013004  46% /
+tmpfs            16407032     141976   16265056   1% /dev/shm
+tmpfs            16407036      58476   16348560   1% /tmp
+/dev/nvme0n1p1     192699     100025      78338  57% /boot
+/dev/nvme0n1p4  129747396  122908888     201488 100% /home
+/dev/sdb1      1921724696  680745580 1143287056  38% /mnt/ssd2
+tmpfs             3281404        112    3281292   1% /run/user/1000"

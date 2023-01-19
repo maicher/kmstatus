@@ -13,7 +13,7 @@ buildx:
 	go build -tags X .
 
 test:
-	go test -cover ./...
+	BASE_PATH="${shell pwd}" go test -cover ./...
 
 clean:
 	rm -f kmstatus

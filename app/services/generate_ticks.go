@@ -8,19 +8,19 @@ import (
 	"github.io/maicher/kmstatus/app/view"
 )
 
-type Generate struct {
+type GenerateTicks struct {
 	Ch       chan<- any
 	Interval time.Duration
 }
 
-func NewGenerate(ch chan<- any, pc []config.ParserConfig) *Generate {
-	return &Generate{
+func NewGenerateTicks(ch chan<- any, pc []config.ParserConfig) *GenerateTicks {
+	return &GenerateTicks{
 		Ch:       ch,
 		Interval: calculateMinInterval(pc),
 	}
 }
 
-func (g *Generate) Loop() {
+func (g *GenerateTicks) Loop() {
 	go func() {
 		onTick(g.Interval, func() {
 			g.Ch <- view.RenderView{}

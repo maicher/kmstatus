@@ -11,6 +11,7 @@ import (
 
 	"github.io/maicher/kmstatus/pkg/parsers"
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/filesystem"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
@@ -36,6 +37,7 @@ PARSER NAMES
   cpu-load
   cpu-temp
   mem
+  fs
 
 CONFIG
   Config options can be put in the $HOME/.config/kmstatus/` + ConfigFileName + ` file.
@@ -79,7 +81,7 @@ type Config struct {
 // Parse parses the command line options to the Config struct.
 func Parse() *Config {
 	c := &Config{
-		ParserConfigs: make([]ParserConfig, 4),
+		ParserConfigs: make([]ParserConfig, 5),
 	}
 
 	flag.BoolVar(&c.PrintConfig, "print-config", false, "")
@@ -98,6 +100,7 @@ func Parse() *Config {
 	c.setFlags(&(c.ParserConfigs[1]), cpu.NewLoadParser, "cpu-load", time.Second, false)
 	c.setFlags(&(c.ParserConfigs[2]), cpu.NewTempParser, "cpu-temp", time.Second, false)
 	c.setFlags(&(c.ParserConfigs[3]), mem.NewMemParser, "mem", time.Second, false)
+	c.setFlags(&(c.ParserConfigs[4]), filesystem.NewFSParser, "fs", time.Second, false)
 
 	f := flag.CommandLine.Output()
 	flag.Usage = func() { fmt.Fprintf(f, help) }
