@@ -7,22 +7,28 @@ import (
 	"strings"
 	"text/template"
 
-	"github.io/maicher/kmstatus/app/config"
-	"github.io/maicher/kmstatus/app/view/out"
+	"github.io/maicher/kmstatus/internal/config"
+	"github.io/maicher/kmstatus/internal/view/out"
 )
 
-const DefaultTemplate = `{{.CPU.Load | round 1}}% {{.CPU.Freq | humanSI 1}}Hz
+const DefaultTemplate = `
+{{if (.PS.Find "firefox")}}{{end}}
+{{if (.PS.Find "brave")}}{{end}}
+{{if (.PS.FindByPrefix "chrome")}}{{end}}
+
  
-{{range $t := .CPU.Temp}}
-  {{- $t}}°
-{{end}}
- 
+{{.CPU.Load | round 1}}% {{.CPU.Freq | humanSI 1}}Hz
+
+{{range $t := .CPU.Temp}}{{$t}}°{{end}}
+
 {{.Mem.MemUsed | human 0}}({{.Mem.MemTotal | human 0}})
- 
+
+{{if (gt .Mem.SwapUsed 0)}}
 Swap: {{.Mem.SwapUsed | human 0}}({{.Mem.SwapTotal | human 0}})
+{{end}}
 
 {{range $d := .FS.Drives}}
- {{$d.Free | human 0}}({{$d.Total | human 0}})
+{{$d.Free | human 0}}({{$d.Total | human 0}})
 {{end}}
 {{if .FS.ENCFS}}ﲙ{{end}}
  `
@@ -46,7 +52,11 @@ func (v *View) Render(d *Data) {
 		panic(err)
 	}
 
-	v.display.SetStatus(strings.ReplaceAll(b.String(), "\n", ""))
+	text := b.String()
+	text = strings.ReplaceAll(text, ")\n\n", " ")
+	text = strings.ReplaceAll(text, "\n", "")
+
+	v.display.SetStatus(text)
 }
 
 func (v *View) RenderErr(e error) {

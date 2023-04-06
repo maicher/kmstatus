@@ -3,25 +3,26 @@ package services
 import (
 	"time"
 
-	"github.io/maicher/kmstatus/app/config"
+	"github.io/maicher/kmstatus/internal/config"
 	"github.io/maicher/kmstatus/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers/factory"
 )
 
 type ParsePeriodically struct {
-	Ch            chan<- any
-	ParsersConfig []config.ParserConfig
+	Ch              chan<- any
+	ParsersSettings []config.ParserSettings
 }
 
-func NewParsePeriodically(ch chan<- any, c []config.ParserConfig) *ParsePeriodically {
+func NewParsePeriodically(ch chan<- any, c []config.ParserSettings) *ParsePeriodically {
 	return &ParsePeriodically{
-		Ch:            ch,
-		ParsersConfig: c,
+		Ch:              ch,
+		ParsersSettings: c,
 	}
 }
 
 func (pp *ParsePeriodically) Loop() error {
-	for _, pc := range pp.ParsersConfig {
-		p, err := pc.NewParserFunc()
+	for _, pc := range pp.ParsersSettings {
+		p, err := factory.NewParser(pc.Name)
 		if err != nil {
 			return err
 		}

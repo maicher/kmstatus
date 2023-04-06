@@ -1,10 +1,11 @@
-package app
+package controller
 
 import (
-	"github.io/maicher/kmstatus/app/view"
+	"github.io/maicher/kmstatus/internal/view"
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 	"github.io/maicher/kmstatus/pkg/parsers/filesystem"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
+	"github.io/maicher/kmstatus/pkg/parsers/processes"
 )
 
 type viewRenderer interface {
@@ -29,6 +30,8 @@ func (c *Controller) AggregateDataAndRenderView() {
 
 	for {
 		switch val := (<-c.Ch).(type) {
+		case processes.PS:
+			d.PS = val
 		case cpu.Freq:
 			d.CPU.Freq = val
 		case cpu.Load:

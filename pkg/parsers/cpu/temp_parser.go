@@ -8,11 +8,7 @@ import (
 	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
-const srcFiles = "/sys/devices/virtual/thermal/thermal_zone*/temp"
-
-// Temp holds temperature values of the CPUs.
-// Each value is for one CPU socket and is expressed in Celsius degrees.
-type Temp []int
+const filesWithTemeratureInfoGlob = "/sys/devices/virtual/thermal/thermal_zone*/temp"
 
 type TempParser struct {
 	files     []*os.File
@@ -36,7 +32,7 @@ func (p *TempParser) Parse() (any, error) {
 }
 
 func NewTempParser() (parsers.Parser, error) {
-	paths, err := filepath.Glob(srcFiles)
+	paths, err := filepath.Glob(filesWithTemeratureInfoGlob)
 	if err != nil {
 		return nil, fmt.Errorf("Temp parser: %w", err)
 	}
@@ -46,7 +42,7 @@ func NewTempParser() (parsers.Parser, error) {
 	}
 
 	if len(paths) == 0 {
-		return &parser, fmt.Errorf("Temp parser: no files matching the pattern %s", srcFiles)
+		return &parser, fmt.Errorf("Temp parser: no files matching the pattern %s", filesWithTemeratureInfoGlob)
 	}
 
 	for i, p := range paths {

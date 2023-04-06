@@ -5,30 +5,31 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.io/maicher/kmstatus/app/config"
-	"github.io/maicher/kmstatus/app/view"
+	"github.io/maicher/kmstatus/internal/config"
+	"github.io/maicher/kmstatus/internal/view"
 	"github.io/maicher/kmstatus/pkg/parsers"
+	"github.io/maicher/kmstatus/pkg/parsers/factory"
 )
 
 const sig = syscall.SIGUSR1
 
 type ParseOnSig struct {
-	Ch            chan<- any
-	ParsersConfig []config.ParserConfig
+	Ch              chan<- any
+	ParsersSettings []config.ParserSettings
 }
 
-func NewParseOnSig(ch chan<- any, c []config.ParserConfig) *ParseOnSig {
+func NewParseOnSig(ch chan<- any, c []config.ParserSettings) *ParseOnSig {
 	return &ParseOnSig{
-		Ch:            ch,
-		ParsersConfig: c,
+		Ch:              ch,
+		ParsersSettings: c,
 	}
 }
 
 func (pos *ParseOnSig) Loop() error {
 	var onSigParsers []parsers.Parser
 
-	for _, pc := range pos.ParsersConfig {
-		p, err := pc.NewParserFunc()
+	for _, pc := range pos.ParsersSettings {
+		p, err := factory.NewParser(pc.Name)
 		if err != nil {
 			return err
 		}

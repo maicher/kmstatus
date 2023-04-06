@@ -8,14 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.io/maicher/kmstatus/pkg/parsers"
-	"github.io/maicher/kmstatus/pkg/parsers/cpu"
-	"github.io/maicher/kmstatus/pkg/parsers/filesystem"
-	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
-const help = `NAME
+var help = `NAME
   kmstatus
 
 SYNOPSIS
@@ -33,11 +28,7 @@ OPTIONS
   --[parser-name]-sig
 
 PARSER NAMES
-  cpu-freq
-  cpu-load
-  cpu-temp
-  mem
-  fs
+  ` + strings.Join(ParserNames, ", ") + `
 
 CONFIG
   Config options can be put in the $HOME/.config/kmstatus/` + ConfigFileName + ` file.
@@ -59,29 +50,36 @@ const (
 	ConfigFileName      = "kmstatusrc"
 )
 
-type NewParserFunc func() (parsers.Parser, error)
+var ParserNames = []string{
+	"cpu-freq",
+	"cpu-load",
+	"cpu-temp",
+	"mem",
+	"fs",
+	"ps",
+}
 
-type ParserConfig struct {
-	Name          string
-	NewParserFunc NewParserFunc
-	Interval      time.Duration
-	OnSig         bool
+type ParserSettings struct {
+	Name     string
+	Interval time.Duration
+	OnSig    bool
 }
 
 type Config struct {
 	PrintConfig   bool
 	PrintTemplate bool
 
-	TemplateName  string
-	ParserConfigs []ParserConfig
+	TemplateName    string
+	ParsersSettings []ParserSettings
 
 	XWindow bool
 }
 
-// Parse parses the command line options to the Config struct.
+// Parse parses options from config file and from command line into the Config struct.
+// Command line options take precedence over options from the config file.
 func Parse() *Config {
 	c := &Config{
-		ParserConfigs: make([]ParserConfig, 5),
+		ParsersSettings: make([]ParserSettings, len(ParserNames)),
 	}
 
 	flag.BoolVar(&c.PrintConfig, "print-config", false, "")
@@ -96,11 +94,9 @@ func Parse() *Config {
 	flag.BoolVar(&c.XWindow, "xwindow", false, "")
 	flag.BoolVar(&c.XWindow, "x", false, "")
 
-	c.setFlags(&(c.ParserConfigs[0]), cpu.NewFreqParser, "cpu-freq", time.Second, false)
-	c.setFlags(&(c.ParserConfigs[1]), cpu.NewLoadParser, "cpu-load", time.Second, false)
-	c.setFlags(&(c.ParserConfigs[2]), cpu.NewTempParser, "cpu-temp", time.Second, false)
-	c.setFlags(&(c.ParserConfigs[3]), mem.NewMemParser, "mem", time.Second, false)
-	c.setFlags(&(c.ParserConfigs[4]), filesystem.NewFSParser, "fs", time.Second, false)
+	for i, name := range ParserNames {
+		c.setFlags(&(c.ParsersSettings[i]), name, time.Second, false)
+	}
 
 	f := flag.CommandLine.Output()
 	flag.Usage = func() { fmt.Fprintf(f, help) }
@@ -120,13 +116,6 @@ func Parse() *Config {
 	return c
 }
 
-func (c *Config) setFlags(pc *ParserConfig, f NewParserFunc, name string, interval time.Duration, onSig bool) {
-	pc.NewParserFunc = f
-	pc.Name = name
-	flag.DurationVar(&(pc.Interval), name, interval, "")
-	flag.BoolVar(&(pc.OnSig), name+"-sig", onSig, "")
-}
-
 func (c *Config) HasDefaultTemplate() bool {
 	return c.TemplateName == DefaultTemplateName
 }
@@ -144,6 +133,12 @@ func (c *Config) FindTemplatePath() (path string, err error) {
 	}
 
 	return
+}
+
+func (c *Config) setFlags(pc *ParserSettings, name string, interval time.Duration, onSig bool) {
+	pc.Name = name
+	flag.DurationVar(&(pc.Interval), name, interval, "")
+	flag.BoolVar(&(pc.OnSig), name+"-sig", onSig, "")
 }
 
 func optionsFromFile() ([]string, bool) {

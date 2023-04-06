@@ -7,11 +7,7 @@ import (
 	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
-const statSrcFile = "/proc/stat"
-
-// Load holds the average CPU load, calculated between the previous and current stats.
-// The result is combined for all cores and is expressed in percentages.
-type Load float64
+const statFilePath = "/proc/stat"
 
 type stat struct {
 	active int
@@ -48,7 +44,7 @@ func (p *LoadParser) Parse() (any, error) {
 
 func NewLoadParser() (parsers.Parser, error) {
 	parser := LoadParser{}
-	file, err := os.Open(statSrcFile)
+	file, err := os.Open(statFilePath)
 
 	if err != nil {
 		return &parser, fmt.Errorf("Load parser: %w", err)

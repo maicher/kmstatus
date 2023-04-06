@@ -1,11 +1,11 @@
-package app
+package controller
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.io/maicher/kmstatus/app/view"
+	"github.io/maicher/kmstatus/internal/view"
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 )
 

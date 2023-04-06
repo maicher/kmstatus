@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.io/maicher/kmstatus/app"
-	"github.io/maicher/kmstatus/app/config"
-	"github.io/maicher/kmstatus/app/services"
-	"github.io/maicher/kmstatus/app/view"
+	"github.io/maicher/kmstatus/internal/config"
+	"github.io/maicher/kmstatus/internal/controller"
+	"github.io/maicher/kmstatus/internal/services"
+	"github.io/maicher/kmstatus/internal/view"
 )
 
 func main() {
-	var err error
 	conf := config.Parse()
 
 	if conf.PrintTemplate {
@@ -21,7 +20,7 @@ func main() {
 
 	if conf.PrintConfig {
 		fmt.Printf("%s %t\n", "xwindow", conf.XWindow)
-		for _, p := range conf.ParserConfigs {
+		for _, p := range conf.ParsersSettings {
 			fmt.Printf("%s %s\n", p.Name, p.Interval)
 			fmt.Printf("%s-sig %t\n", p.Name, p.OnSig)
 		}
@@ -30,15 +29,15 @@ func main() {
 
 	// Init.
 	ch := make(chan any)
-	parsePeriodically := services.NewParsePeriodically(ch, conf.ParserConfigs)
-	parseOnSig := services.NewParseOnSig(ch, conf.ParserConfigs)
-	generate := services.NewGenerateTicks(ch, conf.ParserConfigs)
+	parsePeriodically := services.NewParsePeriodically(ch, conf.ParsersSettings)
+	parseOnSig := services.NewParseOnSig(ch, conf.ParsersSettings)
+	generate := services.NewGenerateTicks(ch, conf.ParsersSettings)
 	v, err := view.New(conf)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	controller := app.NewController(ch, v)
+	controller := controller.NewController(ch, v)
 
 	// Start.
 	err = parsePeriodically.Loop()
@@ -46,12 +45,14 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
 	err = parseOnSig.Loop()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	generate.Loop()
+
+	generate.GenerateTicks()
 
 	controller.AggregateDataAndRenderView()
 }

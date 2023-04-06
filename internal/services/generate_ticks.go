@@ -4,8 +4,8 @@ import (
 	"sort"
 	"time"
 
-	"github.io/maicher/kmstatus/app/config"
-	"github.io/maicher/kmstatus/app/view"
+	"github.io/maicher/kmstatus/internal/config"
+	"github.io/maicher/kmstatus/internal/view"
 )
 
 type GenerateTicks struct {
@@ -13,14 +13,14 @@ type GenerateTicks struct {
 	Interval time.Duration
 }
 
-func NewGenerateTicks(ch chan<- any, pc []config.ParserConfig) *GenerateTicks {
+func NewGenerateTicks(ch chan<- any, pc []config.ParserSettings) *GenerateTicks {
 	return &GenerateTicks{
 		Ch:       ch,
 		Interval: calculateMinInterval(pc),
 	}
 }
 
-func (g *GenerateTicks) Loop() {
+func (g *GenerateTicks) GenerateTicks() {
 	go func() {
 		onTick(g.Interval, func() {
 			g.Ch <- view.RenderView{}
@@ -28,7 +28,7 @@ func (g *GenerateTicks) Loop() {
 	}()
 }
 
-func calculateMinInterval(pc []config.ParserConfig) time.Duration {
+func calculateMinInterval(pc []config.ParserSettings) time.Duration {
 	var intervals []int
 
 	for _, v := range pc {

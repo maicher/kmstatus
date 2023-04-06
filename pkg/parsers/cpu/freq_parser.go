@@ -8,10 +8,7 @@ import (
 	"github.io/maicher/kmstatus/pkg/parsers"
 )
 
-const freqSrcfiles = "/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq"
-
-// Freq holds CPU frequency in kHz.
-type Freq int
+const filesWithFreqInfoGlob = "/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq"
 
 type FreqParser struct {
 	files []*os.File
@@ -36,15 +33,14 @@ func (p *FreqParser) Parse() (any, error) {
 
 func NewFreqParser() (parsers.Parser, error) {
 	parser := FreqParser{}
-	paths, err := filepath.Glob(freqSrcfiles)
+	paths, err := filepath.Glob(filesWithFreqInfoGlob)
 	if err != nil {
 		return &parser, fmt.Errorf("Freq parser: %w", err)
 	}
 
 	parser.files = make([]*os.File, len(paths))
-
 	if len(paths) == 0 {
-		return &parser, fmt.Errorf("Freq parser: no files matching the pattern %s", freqSrcfiles)
+		return &parser, fmt.Errorf("Freq parser: no files matching the pattern %s", filesWithFreqInfoGlob)
 	}
 
 	for i, p := range paths {

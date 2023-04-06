@@ -18,7 +18,12 @@ test:
 clean:
 	rm -f kmstatus
 
-install:
+install: build
+	mkdir -p ${DESTDIR}${PREFIX}/bin
+	cp -f kmstatus ${DESTDIR}${PREFIX}/bin
+	chmod 755 ${DESTDIR}${PREFIX}/bin/kmstatus
+
+installx: buildx
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f kmstatus ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/kmstatus
