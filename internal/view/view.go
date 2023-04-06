@@ -12,25 +12,24 @@ import (
 )
 
 const DefaultTemplate = `
-{{if (.PS.Find "firefox")}}{{end}}
-{{if (.PS.Find "brave")}}{{end}}
-{{if (.PS.FindByPrefix "chrome")}}{{end}}
-
+{{if .PS.Find "firefox"}}F{{end}}
+{{if .PS.Find "brave"}}B{{end}}
+{{if .PS.FindByPrefix "chrome"}}C{{end}}
  
-{{.CPU.Load | round 1}}% {{.CPU.Freq | humanSI 1}}Hz
-
+{{.CPU.Load | round 1 | ljust 4}}% {{.CPU.Freq | humanSI 1}}Hz
+ 
 {{range $t := .CPU.Temp}}{{$t}}°{{end}}
+ 
+M:{{.Mem.MemUsed | human 0}}/{{.Mem.MemTotal | human 0}}
 
-{{.Mem.MemUsed | human 0}}({{.Mem.MemTotal | human 0}})
-
-{{if (gt .Mem.SwapUsed 0)}}
-Swap: {{.Mem.SwapUsed | human 0}}({{.Mem.SwapTotal | human 0}})
+{{if gt .Mem.SwapUsed 0}}
+Swap:{{.Mem.SwapUsed | human 0}}/{{.Mem.SwapTotal | human 0}}
 {{end}}
 
 {{range $d := .FS.Drives}}
-{{$d.Free | human 0}}({{$d.Total | human 0}})
+ {{.Name}}:{{.Free | human 0}}/{{.Total | human 0}}
 {{end}}
-{{if .FS.ENCFS}}ﲙ{{end}}
+{{if .FS.ENCFS}}E{{end}}
  `
 
 type StatusSetter interface {

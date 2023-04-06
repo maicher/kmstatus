@@ -3,6 +3,7 @@ package view
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"text/template"
 
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
@@ -13,6 +14,17 @@ var helpers = template.FuncMap{
 	"round":   round,
 	"human":   human,
 	"humanSI": humanSI,
+	"ljust":   ljust,
+}
+
+// Prepends a string with spaces so that the length of the output string is num.
+func ljust(num int, s string) string {
+	l := num - len(s)
+	if l < 0 {
+		return s
+	}
+
+	return strings.Repeat(" ", l) + s
 }
 
 // Converts a number to a human-readable string.

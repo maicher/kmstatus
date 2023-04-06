@@ -70,6 +70,8 @@ func parseDrive(s string) Drive {
 	r := strings.NewReader(s)
 
 	fmt.Fscanf(r, "%s %d %d %s %s %s", &(d.Name), &(d.Total), &(d.Used), &ignored, &ignored, &(d.MountedOn))
+	i := strings.LastIndex(d.Name, "/")
+	d.Name = d.Name[i+1:]
 	d.Free = d.Total - d.Used
 
 	return d
