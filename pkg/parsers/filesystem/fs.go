@@ -13,6 +13,10 @@ type FS struct {
 	ENCFS  bool
 }
 
+func NewFS() FS {
+	return FS{}
+}
+
 func (fs *FS) Find(name string) (drive *Drive) {
 	for _, d := range fs.Drives {
 		if d.Name == name {

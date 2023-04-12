@@ -5,6 +5,7 @@ import (
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 	"github.io/maicher/kmstatus/pkg/parsers/filesystem"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
+	"github.io/maicher/kmstatus/pkg/parsers/network"
 	"github.io/maicher/kmstatus/pkg/parsers/processes"
 )
 
@@ -42,6 +43,8 @@ func (c *Controller) AggregateDataAndRenderView() {
 			d.Mem = val
 		case filesystem.FS:
 			d.FS = val
+		case network.Net:
+			d.Net = val
 		case view.RenderView:
 			c.View.Render(d)
 		case error:

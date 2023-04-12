@@ -25,7 +25,7 @@ func Test_View(t *testing.T) {
 
 	d := &Data{
 		CPU: cpu.CPU{
-			Freq: cpu.Freq(1000),
+			Freq: cpu.Freq(1000000),
 		},
 	}
 

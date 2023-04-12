@@ -41,6 +41,7 @@ func humanSI(precision int, v any) string {
 
 func humanUnit(unit int, precision int, v any) string {
 	var b int
+
 	switch v.(type) {
 	case cpu.Freq:
 		b = int(v.(cpu.Freq))
@@ -49,7 +50,6 @@ func humanUnit(unit int, precision int, v any) string {
 	default:
 		panic("Unknown type")
 	}
-
 	if b < unit {
 		return strconv.Itoa(b)
 	}
@@ -60,7 +60,7 @@ func humanUnit(unit int, precision int, v any) string {
 		exp++
 	}
 
-	return fmt.Sprintf("%.*f%c", precision, float64(b)/float64(div), "MGTk"[exp])
+	return fmt.Sprintf("%.*f%c", precision, float64(b)/float64(div), "kMGT"[exp])
 }
 
 // Rounds a number according to given precision.

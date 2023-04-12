@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io"
 	"os/exec"
-	"strings"
 
 	"github.io/maicher/kmstatus/pkg/parsers"
 )
@@ -30,11 +28,7 @@ func NewProcessesParser() (parsers.Parser, error) {
 
 func (p *ProcessesParser) Parse() (any, error) {
 	var buf bytes.Buffer
-	var ignored string
-	var item string
-
-	ps := PS{}
-	ps.m = make(map[string]int)
+	ps := NewPS()
 
 	cmd := exec.Command(p.path, "-e")
 	cmd.Stdout = &buf
@@ -43,29 +37,28 @@ func (p *ProcessesParser) Parse() (any, error) {
 		return ps, fmt.Errorf("Processes parser: %s\n", err)
 	}
 
-	scan(&buf, func(line string) {
-		r := strings.NewReader(line)
-		fmt.Fscanf(r, "%s %s %s %s", &ignored, &ignored, &ignored, &item)
-		name := firstSegment(item)
-		_, exist := ps.m[name]
-		if exist {
-			ps.m[name] = ps.m[name] + 1
-		} else {
-			ps.m[name] = 1
-		}
-	})
+	s := bufio.NewScanner(&buf)
+	s.Split(eachProcess)
+	for s.Scan() {
+		ps.Add(s.Text())
+	}
 
 	return ps, nil
 }
 
-func scan(buf io.Reader, f func(line string)) {
-	s := bufio.NewScanner(buf)
-	s.Split(bufio.ScanLines)
-	for s.Scan() {
-		f(s.Text())
+// Split function for parsing the "ps -e" output line.
+// It drops first 26 chars from each line, leaving only the cmd name.
+// And also drops everything after "/" in the cmd name.
+func eachProcess(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	advance, token, err = bufio.ScanLines(data, atEOF)
+
+	if len(token) > 0 {
+		token = token[26:]
+		i := bytes.Index(token, []byte("/"))
+		if i > 0 {
+			token = token[0:i]
+		}
 	}
-}
-func firstSegment(s string) string {
-	segments := strings.SplitN(s, "/", 2)
-	return segments[0]
+
+	return advance, token, err
 }

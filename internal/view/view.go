@@ -26,10 +26,15 @@ M:{{.Mem.MemUsed | human 0}}/{{.Mem.MemTotal | human 0}}
 Swap:{{.Mem.SwapUsed | human 0}}/{{.Mem.SwapTotal | human 0}}
 {{end}}
 
-{{range $d := .FS.Drives}}
+{{range .FS.Drives}}
  {{.Name}}:{{.Free | human 0}}/{{.Total | human 0}}
 {{end}}
 {{if .FS.ENCFS}}E{{end}}
+
+ 
+{{range .Net.Interfaces }}
+{{if .IsUp}}[{{.Name}}: {{.Rx | human 0 | ljust 4}}{{.Tx | human 0 | ljust 4}}]{{end}}
+{{end}}
  `
 
 type StatusSetter interface {

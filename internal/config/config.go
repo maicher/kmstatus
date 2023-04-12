@@ -57,6 +57,7 @@ var ParserNames = []string{
 	"mem",
 	"fs",
 	"ps",
+	"net",
 }
 
 type ParserSettings struct {

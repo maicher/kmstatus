@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io"
 	"os/exec"
 	"strings"
 
@@ -18,10 +17,8 @@ type FSParser struct {
 }
 
 func (p *FSParser) Parse() (any, error) {
-	var (
-		buf bytes.Buffer
-		fs  FS
-	)
+	var buf bytes.Buffer
+	fs := NewFS()
 
 	cmd := exec.Command(p.path)
 	cmd.Stdout = &buf
@@ -30,7 +27,11 @@ func (p *FSParser) Parse() (any, error) {
 		return fs, fmt.Errorf("FS parser: %w", err)
 	}
 
-	scan(&buf, func(line string) {
+	s := bufio.NewScanner(&buf)
+	s.Split(bufio.ScanLines)
+	for s.Scan() {
+		line := s.Text()
+
 		if strings.HasPrefix(line, "/dev") {
 			fs.Drives = append(fs.Drives, parseDrive(line))
 		}
@@ -38,7 +39,7 @@ func (p *FSParser) Parse() (any, error) {
 		if strings.HasPrefix(line, "encfs") {
 			fs.ENCFS = true
 		}
-	})
+	}
 
 	return fs, nil
 }
@@ -54,14 +55,6 @@ func NewFSParser() (parsers.Parser, error) {
 	parser.path = path
 
 	return &parser, nil
-}
-
-func scan(buf io.Reader, f func(line string)) {
-	s := bufio.NewScanner(buf)
-	s.Split(bufio.ScanLines)
-	for s.Scan() {
-		f(s.Text())
-	}
 }
 
 func parseDrive(s string) Drive {

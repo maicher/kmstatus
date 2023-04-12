@@ -7,6 +7,7 @@ import (
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 	"github.io/maicher/kmstatus/pkg/parsers/filesystem"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
+	"github.io/maicher/kmstatus/pkg/parsers/network"
 	"github.io/maicher/kmstatus/pkg/parsers/processes"
 )
 
@@ -17,6 +18,7 @@ var constructors = map[string]parsers.NewParserFunc{
 	"mem":      mem.NewMemParser,
 	"fs":       filesystem.NewFSParser,
 	"ps":       processes.NewProcessesParser,
+	"net":      network.NewNetParser,
 }
 
 func NewParser(name string) (parsers.Parser, error) {
