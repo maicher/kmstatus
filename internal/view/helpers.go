@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 )
@@ -15,6 +16,7 @@ var helpers = template.FuncMap{
 	"human":   human,
 	"humanSI": humanSI,
 	"ljust":   ljust,
+	"clock":   clock,
 }
 
 // Prepends a string with spaces so that the length of the output string is num.
@@ -25,6 +27,10 @@ func ljust(num int, s string) string {
 	}
 
 	return strings.Repeat(" ", l) + s
+}
+
+func clock(format string) string {
+	return time.Now().Format(format)
 }
 
 // Converts a number to a human-readable string.

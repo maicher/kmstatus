@@ -35,6 +35,8 @@ Swap:{{.Mem.SwapUsed | human 0}}/{{.Mem.SwapTotal | human 0}}
 {{range .Net.Interfaces }}
 {{if .IsUp}}[{{.Name}}: {{.Rx | human 0 | ljust 4}}{{.Tx | human 0 | ljust 4}}]{{end}}
 {{end}}
+
+ {{"2006-01-02 15:04:05" | clock}}
  `
 
 type StatusSetter interface {
