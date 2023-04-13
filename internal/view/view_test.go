@@ -25,13 +25,13 @@ func Test_View(t *testing.T) {
 
 	d := &Data{
 		CPU: cpu.CPU{
-			Freq: cpu.Freq(1000000),
+			Freq: cpu.Freq(1200000),
 		},
 	}
 
 	v.Render(d)
 
-	if !strings.Contains(display.status, "1.0MHz") {
-		t.Fatalf("Rendered status: %s does not contains phrase: '1MHz'", display.status)
+	if !strings.Contains(display.status, "1.2GHz") {
+		t.Fatalf("Rendered status: %s does not contains phrase: '1.2GHz'", display.status)
 	}
 }

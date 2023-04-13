@@ -1,8 +1,10 @@
 package mem
 
+type SpaceKB int
+
 type Mem struct {
-	MemTotal  int
-	MemUsed   int
-	SwapTotal int
-	SwapUsed  int
+	MemTotal  SpaceKB
+	MemUsed   SpaceKB
+	SwapTotal SpaceKB
+	SwapUsed  SpaceKB
 }

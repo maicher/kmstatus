@@ -40,10 +40,10 @@ func (p *MemParser) Parse() (any, error) {
 	})
 
 	m := Mem{
-		MemTotal:  total,
-		MemUsed:   total - free - buffers - cached,
-		SwapTotal: swapTotal,
-		SwapUsed:  swapTotal - swapFree,
+		MemTotal:  SpaceKB(total),
+		MemUsed:   SpaceKB(total - free - buffers - cached),
+		SwapTotal: SpaceKB(swapTotal),
+		SwapUsed:  SpaceKB(swapTotal - swapFree),
 	}
 
 	return m, nil

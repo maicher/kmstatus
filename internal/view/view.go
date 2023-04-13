@@ -23,13 +23,13 @@ const DefaultTemplate = `
 M:{{.Mem.MemUsed | human 0}}/{{.Mem.MemTotal | human 0}}
 
 {{if gt .Mem.SwapUsed 0}}
-Swap:{{.Mem.SwapUsed | human 0}}/{{.Mem.SwapTotal | human 0}}
+ Swap:{{.Mem.SwapUsed | human 0}}/{{.Mem.SwapTotal | human 0}}
 {{end}}
 
 {{range .FS.Drives}}
  {{.Name}}:{{.Free | human 0}}/{{.Total | human 0}}
 {{end}}
-{{if .FS.ENCFS}}E{{end}}
+{{if .FS.ENCFS}} E{{end}}
 
  
 {{range .Net.Interfaces }}

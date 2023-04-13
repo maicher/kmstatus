@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
 // Helper functions to be used in the templates.
@@ -50,7 +51,9 @@ func humanUnit(unit int, precision int, v any) string {
 
 	switch v.(type) {
 	case cpu.Freq:
-		b = int(v.(cpu.Freq))
+		b = int(v.(cpu.Freq)) * 1000
+	case mem.SpaceKB:
+		b = int(v.(mem.SpaceKB)) * 1024
 	case int:
 		b = v.(int)
 	default:
