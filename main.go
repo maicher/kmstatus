@@ -14,7 +14,7 @@ func main() {
 	conf := config.Parse()
 
 	if conf.PrintTemplate {
-		fmt.Println(view.DefaultTemplate)
+		fmt.Println(string(config.DefaultTemplate))
 		os.Exit(0)
 	}
 

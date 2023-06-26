@@ -8,6 +8,14 @@ type Drive struct {
 	Free      int
 }
 
+func (d *Drive) UsedPercentage() float64 {
+	return 100 * float64(d.Used) / float64(d.Total)
+}
+
+func (d *Drive) FreePercentage() float64 {
+	return 100 * float64(d.Free) / float64(d.Total)
+}
+
 type FS struct {
 	Drives []Drive
 	ENCFS  bool

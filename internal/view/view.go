@@ -11,34 +11,6 @@ import (
 	"github.io/maicher/kmstatus/internal/view/out"
 )
 
-const DefaultTemplate = `
-{{if .PS.Find "firefox"}}F{{end}}
-{{if .PS.Find "brave"}}B{{end}}
-{{if .PS.FindByPrefix "chrome"}}C{{end}}
- 
-{{.CPU.Load | round 1 | ljust 4}}% {{.CPU.Freq | humanSI 1}}Hz
- 
-{{range $t := .CPU.Temp}}{{$t}}°{{end}}
- 
-M:{{.Mem.MemUsed | human 0}}/{{.Mem.MemTotal | human 0}}
-
-{{if gt .Mem.SwapUsed 0}}
- Swap:{{.Mem.SwapUsed | human 0}}/{{.Mem.SwapTotal | human 0}}
-{{end}}
-
-{{range .FS.Drives}}
- {{.Name}}:{{.Free | human 0}}/{{.Total | human 0}}
-{{end}}
-{{if .FS.ENCFS}} E{{end}}
-
- 
-{{range .Net.Interfaces }}
-{{if .IsUp}}[{{.Name}}: {{.Rx | human 0 | ljust 4}}{{.Tx | human 0 | ljust 4}}]{{end}}
-{{end}}
-
- {{"2006-01-02 15:04:05" | clock}}
- `
-
 type StatusSetter interface {
 	SetStatus(string)
 }
@@ -107,6 +79,6 @@ func compileTemplates(c *config.Config) (*template.Template, error) {
 
 func mustCompileDefaultTemplate() *template.Template {
 	return template.Must(
-		template.New(config.DefaultTemplateName).Funcs(helpers).Parse(DefaultTemplate),
+		template.New(config.DefaultTemplateName).Funcs(helpers).Parse(string(config.DefaultTemplate)),
 	)
 }

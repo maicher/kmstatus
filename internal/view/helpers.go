@@ -13,11 +13,14 @@ import (
 
 // Helper functions to be used in the templates.
 var helpers = template.FuncMap{
-	"round":   round,
-	"human":   human,
-	"humanSI": humanSI,
-	"ljust":   ljust,
-	"clock":   clock,
+	"round":       round,
+	"human":       human,
+	"humanK":      humanK,
+	"humanSI":     humanSI,
+	"humanKSI":    humanKSI,
+	"ljust":       ljust,
+	"clock":       clock,
+	"lastSegment": lastSegment,
 }
 
 // Prepends a string with spaces so that the length of the output string is num.
@@ -37,23 +40,35 @@ func clock(format string) string {
 // Converts a number to a human-readable string.
 // 1M == 1024k
 func human(precision int, v any) string {
-	return humanUnit(1024, precision, v)
+	return humanUnit(1024, precision, v, "kMGT")
+}
+
+// Converts a number to a human-readable string.
+// 1M == 1024k
+func humanK(precision int, v any) string {
+	return humanUnit(1024, precision, v, "MGT")
 }
 
 // Converts a number to a human-readable string.
 // 1M == 1000k
 func humanSI(precision int, v any) string {
-	return humanUnit(1000, precision, v)
+	return humanUnit(1000, precision, v, "kMGT")
 }
 
-func humanUnit(unit int, precision int, v any) string {
+// Converts a number to a human-readable string.
+// 1M == 1000k
+func humanKSI(precision int, v any) string {
+	return humanUnit(1000, precision, v, "MGT")
+}
+
+func humanUnit(unit int, precision int, v any, x string) string {
 	var b int
 
 	switch v.(type) {
 	case cpu.Freq:
-		b = int(v.(cpu.Freq)) * 1000
+		b = int(v.(cpu.Freq))
 	case mem.SpaceKB:
-		b = int(v.(mem.SpaceKB)) * 1024
+		b = int(v.(mem.SpaceKB))
 	case int:
 		b = v.(int)
 	default:
@@ -69,7 +84,7 @@ func humanUnit(unit int, precision int, v any) string {
 		exp++
 	}
 
-	return fmt.Sprintf("%.*f%c", precision, float64(b)/float64(div), "kMGT"[exp])
+	return fmt.Sprintf("%.*f%c", precision, float64(b)/float64(div), x[exp])
 }
 
 // Rounds a number according to given precision.
@@ -88,4 +103,13 @@ func round(precision int, v any) string {
 		panic("Unknown type")
 	}
 	return fmt.Sprintf("%.*f", precision, f)
+}
+
+func lastSegment(name string) string {
+	index := strings.LastIndex(name, "/")
+	if index <= 0 {
+		return name
+	}
+
+	return name[index:]
 }

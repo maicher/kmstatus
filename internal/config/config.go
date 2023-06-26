@@ -2,6 +2,7 @@ package config
 
 import (
 	"bufio"
+	_ "embed"
 	"flag"
 	"fmt"
 	"os"
@@ -59,6 +60,9 @@ var ParserNames = []string{
 	"ps",
 	"net",
 }
+
+//go:embed templates/default.txt.tmpl
+var DefaultTemplate []byte
 
 type ParserSettings struct {
 	Name     string
