@@ -1,26 +1,36 @@
 {{if .PS.Find "firefox"}}F{{end}}
 {{if .PS.Find "brave"}}B{{end}}
 {{if .PS.FindByPrefix "chrome"}}C{{end}}
- 
-{{.CPU.Load | round 1 | ljust 4}}% {{.CPU.Freq | humanKSI 1}}Hz
- 
-{{range $t := .CPU.Temp}}{{$t}}°{{end}}
- 
-M({{.Mem.MemTotal | humanK 0}}):{{.Mem.MemUsedPercentage | round 0 }}%
 
+{{/* CPU */}}
+
+ {{.CPU.Load | round 1 | ljust 4}}% {{.CPU.Freq | humanKSI 1}}Hz
+ {{range $t := .CPU.Temp}}{{$t}}°{{end}}
+ #{{.Mem.MemTotal | humanK 0}}:{{.Mem.MemUsedPercentage | round 0 }}%
 {{if gt .Mem.SwapUsed 0}}
  Swap({{.Mem.SwapTotal | humanK 0}}):{{.Mem.SwapUsedPercentage | round 0}}%
 {{end}}
+
+{{/* GPU */}}
+
+ {{.GPU.Load | ljust 4}}%
+ {{.GPU.Freq| humanSI 1}}Hz
+ {{.GPU.Temp}}°
+ #{{.GPU.MemTotal | human 0}}:{{.GPU.MemUsedPercentage | round 0}}%
+ {{.GPU.Power | round 0}}W
+
+{{/* DRIVES */}}
 
 {{range .FS.Drives}}
  {{.MountedOn | lastSegment}}({{.Total | humanK 0}}):{{.UsedPercentage | round 0}}%
 {{end}}
 {{if .FS.ENCFS}} E{{end}}
 
- 
+{{/* NET */}}
+
 {{range .Net.ByPrefix "enp" }}
 {{if .IsUp}}
-[{{.Name}}: {{.Rx | human 0 | ljust 4}}{{.Tx | human 0 | ljust 4}}]
+ [{{.Name}}: {{.Rx | human 0 | ljust 4}}{{.Tx | human 0 | ljust 4}}]
 {{end}}
 {{end}}
 

@@ -4,6 +4,7 @@ import (
 	"github.io/maicher/kmstatus/internal/view"
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
 	"github.io/maicher/kmstatus/pkg/parsers/filesystem"
+	"github.io/maicher/kmstatus/pkg/parsers/gpu"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
 	"github.io/maicher/kmstatus/pkg/parsers/network"
 	"github.io/maicher/kmstatus/pkg/parsers/processes"
@@ -39,6 +40,8 @@ func (c *Controller) AggregateDataAndRenderView() {
 			d.CPU.Load = val
 		case cpu.Temp:
 			d.CPU.Temp = val
+		case gpu.GPU:
+			d.GPU = val
 		case mem.Mem:
 			d.Mem = val
 		case filesystem.FS:

@@ -55,6 +55,7 @@ var ParserNames = []string{
 	"cpu-freq",
 	"cpu-load",
 	"cpu-temp",
+	"gpu",
 	"mem",
 	"fs",
 	"ps",

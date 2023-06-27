@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.io/maicher/kmstatus/pkg/parsers/cpu"
+	"github.io/maicher/kmstatus/pkg/parsers/gpu"
 	"github.io/maicher/kmstatus/pkg/parsers/mem"
 )
 
@@ -23,8 +24,17 @@ var helpers = template.FuncMap{
 	"lastSegment": lastSegment,
 }
 
-// Prepends a string with spaces so that the length of the output string is num.
-func ljust(num int, s string) string {
+// Prepends a string of int with spaces so that the length of the output string is num.
+func ljust(num int, x any) string {
+	var s string
+
+	switch x.(type) {
+	case string:
+		s = x.(string)
+	case int:
+		s = strconv.Itoa(x.(int))
+	}
+
 	l := num - len(s)
 	if l < 0 {
 		return s
@@ -67,8 +77,12 @@ func humanUnit(unit int, precision int, v any, x string) string {
 	switch v.(type) {
 	case cpu.Freq:
 		b = int(v.(cpu.Freq))
+	case gpu.Freq:
+		b = int(v.(gpu.Freq)) * 1000000
 	case mem.SpaceKB:
 		b = int(v.(mem.SpaceKB))
+	case gpu.SpaceMB:
+		b = int(v.(gpu.SpaceMB)) * 1024 * 1024
 	case int:
 		b = v.(int)
 	default:
