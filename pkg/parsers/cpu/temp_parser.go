@@ -10,6 +10,15 @@ import (
 
 const filesWithTemeratureInfoGlob = "/sys/devices/virtual/thermal/thermal_zone*/temp"
 
+var nullTemp = Temp(make([]int, 1))
+
+type NullTempParser struct {
+}
+
+func (p *NullTempParser) Parse() (any, error) {
+	return nullTemp, nil
+}
+
 type TempParser struct {
 	files     []*os.File
 	formatter string
@@ -42,7 +51,8 @@ func NewTempParser() (parsers.Parser, error) {
 	}
 
 	if len(paths) == 0 {
-		return &parser, fmt.Errorf("Temp parser: no files matching the pattern %s", filesWithTemeratureInfoGlob)
+		fmt.Printf("Temp parser: no files matching the pattern %s", filesWithTemeratureInfoGlob)
+		return &NullTempParser{}, nil
 	}
 
 	for i, p := range paths {

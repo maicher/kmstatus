@@ -4,7 +4,7 @@
 
 {{/* CPU */}}
 
- {{.CPU.Load | round 1 | ljust 4}}% {{.CPU.Freq | humanKSI 1}}Hz
+ {{.CPU.Load | round 1 | ljust 4}}% {{.CPU.Freq | GHz 1 }}
  {{range $t := .CPU.Temp}}{{$t}}°{{end}}
  #{{.Mem.MemTotal | humanK 0}}:{{.Mem.MemUsedPercentage | round 0 }}%
 {{if gt .Mem.SwapUsed 0}}

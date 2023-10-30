@@ -18,7 +18,7 @@ var helpers = template.FuncMap{
 	"human":       human,
 	"humanK":      humanK,
 	"humanSI":     humanSI,
-	"humanKSI":    humanKSI,
+	"GHz":         GHz,
 	"ljust":       ljust,
 	"clock":       clock,
 	"lastSegment": lastSegment,
@@ -65,10 +65,9 @@ func humanSI(precision int, v any) string {
 	return humanUnit(1000, precision, v, "kMGT")
 }
 
-// Converts a number to a human-readable string.
-// 1M == 1000k
-func humanKSI(precision int, v any) string {
-	return humanUnit(1000, precision, v, "MGT")
+// Converts a int in kHz to a string in GHz.
+func GHz(precision int, v cpu.Freq) string {
+	return fmt.Sprintf("%.*fGHz", precision, float64(v)/float64(1000000))
 }
 
 func humanUnit(unit int, precision int, v any, x string) string {
