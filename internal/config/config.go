@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"fmt"
@@ -10,9 +10,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 )
-
-//go:embed doc.txt
-var doc string
 
 //go:embed kmstrc.example.toml
 var kmstrcExample string
@@ -29,7 +26,7 @@ type Config struct {
 	Parsers []Parser `toml:"parser"`
 }
 
-func NewConfig(path string) (Config, error) {
+func New(path string) (Config, error) {
 	if path != "" {
 		return parseConfig(path)
 	}

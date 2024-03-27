@@ -23,7 +23,7 @@ OPTIONS
 
 CONFIG
   See the below link for example config:
-    https://github.com/maicher/kmst/blob/master/kmstrc.example.toml
+    https://github.com/maicher/kmst/blob/master/internal/config/kmstrc.example.toml
 
 SIGNALS
   By default kmst will print to output every n seconds,
