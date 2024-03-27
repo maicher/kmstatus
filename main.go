@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/maicher/kmst/internal/options"
+	"github.com/maicher/kmst/internal/ui"
 )
 
 var version string
@@ -28,6 +29,13 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
 	fmt.Printf("%+v\n", c)
+
+	view, err := ui.NewView(opts.XWindow)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(2)
+	}
+
+	view.Render("test")
 }

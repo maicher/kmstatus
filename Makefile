@@ -7,7 +7,7 @@ run: build
 	@./kmst $(ARGS)
 
 buildx:
-	@CGO_ENABLED=0 go build -tags X -ldflags="-s -w -X main.version=0.1" .
+	@go build -tags X -ldflags="-s -w -X main.version=0.1" .
 
 runx: buildx
 	@./kmst $(ARGS)
