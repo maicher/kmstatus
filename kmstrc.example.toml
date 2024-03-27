@@ -1,0 +1,7 @@
+timefmt = "2006-01-02 15:04"
+
+[[parser]]
+name = "cpu"
+interval = "1s"
+onsig = false
+template = ""
