@@ -4,26 +4,19 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
 	_ "embed"
 
 	"github.com/BurntSushi/toml"
+	"github.com/maicher/kmst/internal/segments"
 )
 
 //go:embed kmstrc.example.toml
 var kmstrcExample string
 
-type Parser struct {
-	Name     string
-	Interval time.Duration
-	OnSig    bool
-	Template string
-}
-
 type Config struct {
-	Timefmt string
-	Parsers []Parser `toml:"parser"`
+	Timefmt  string
+	Segments []segments.SegmentConfig `toml:"segment"`
 }
 
 func New(path string) (Config, error) {

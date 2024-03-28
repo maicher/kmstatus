@@ -18,7 +18,10 @@ package out
 // #include <X11/Xlib.h>
 // Window getDefaultRootWindow(Display *dpy){return DefaultRootWindow(dpy);}
 import "C"
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 type Window struct {
 	display     *C.Display
@@ -38,7 +41,7 @@ func NewWindow() (*Window, error) {
 	}, nil
 }
 
-func (w *Window) SetStatus(name string) {
-	C.XStoreName(w.display, w.defaultroot, C.CString(name))
+func (w *Window) SetStatus(buffer *bytes.Buffer) {
+	C.XStoreName(w.display, w.defaultroot, C.CString(buffer.String()))
 	C.XSync(w.display, 0)
 }

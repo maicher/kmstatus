@@ -1,7 +1,33 @@
 timefmt = "2006-01-02 15:04"
 
-[[parser]]
-name = "cpu"
-interval = "1s"
-onsig = false
-template = ""
+[[segment]]
+parsername = "cpu"
+parseinterval = "1s"
+parseonsig = false
+template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}%"""
+# https://github.com/maicher/kmst/blob/master/internal/hardware/cpu/data.go
+
+[[segment]]
+parsername = "temperature"
+parseinterval = "5s"
+parseonsig = false
+template = """{{ if .Name | eq "k10temp" }}
+ {{ .Value }}°
+{{ end }}"""
+
+# In Celsius:
+# template = " {{ .Name }}:{{ .Celsius }}°C"
+
+# In Fahrenheit:
+# template = " {{ .Name }}:{{ .Fahrenheit }}°F"
+
+# Do not display all available temperatures, but a specific one:
+# template = """ {{ if .Name | eq "test" }}
+# {{ .Value }}°
+# {{ end }}"""
+
+# Specific two:
+# template = """ {{ if (.Name | eq "test1") | or (.Name | eq "test2") }}
+# {{ .Value }}°
+# {{ end }}"""
+# https://github.com/maicher/kmst/blob/master/internal/hardware/temperature/data.go

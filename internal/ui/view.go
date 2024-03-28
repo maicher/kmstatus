@@ -1,9 +1,13 @@
 package ui
 
-import "github.com/maicher/kmst/internal/ui/out"
+import (
+	"bytes"
+
+	"github.com/maicher/kmst/internal/ui/out"
+)
 
 type statusSetter interface {
-	SetStatus(string)
+	SetStatus(*bytes.Buffer)
 }
 
 type View struct {
@@ -28,6 +32,7 @@ func NewView(isX bool) (*View, error) {
 	return &v, nil
 }
 
-func (v *View) Render(str string) {
-	v.display.SetStatus(str)
+func (v *View) Flush(buffer *bytes.Buffer) {
+	v.display.SetStatus(buffer)
+	buffer.Reset()
 }
