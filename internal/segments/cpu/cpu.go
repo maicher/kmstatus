@@ -39,7 +39,7 @@ func New(conf segments.SegmentConfig) (segments.Segment, error) {
 		return &c, err
 	}
 
-	c.tmpl, err = template.New("").Parse(conf.StrippedTemplate())
+	c.tmpl, err = template.New("").Funcs(helpers).Parse(conf.StrippedTemplate())
 	if err != nil {
 		return &c, fmt.Errorf("Unable to parse CPU template: %s", err)
 	}

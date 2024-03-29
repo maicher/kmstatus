@@ -4,7 +4,8 @@ timefmt = "2006-01-02 15:04"
 parsername = "cpu"
 parseinterval = "1s"
 parseonsig = false
-template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}%"""
+#template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}%"""
+template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}% {{ .Load | bar }}"""
 # https://github.com/maicher/kmst/blob/master/internal/hardware/cpu/data.go
 
 [[segment]]
