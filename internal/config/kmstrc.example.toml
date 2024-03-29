@@ -1,5 +1,3 @@
-timefmt = "2006-01-02 15:04"
-
 [[segment]]
 parsername = "cpu"
 parseinterval = "1s"
@@ -53,5 +51,8 @@ template = """
 {{ if .Name | hasPrefix "en" }}
  [{{ .Name }} {{ .Rx | human 0 | ljust 4 }}{{ .Tx | human 0 | ljust 4 }}]
 {{ end }}
-
 """
+
+[[segment]]
+parsername = "clock"
+template = """ {{ . | format "2006-01-02 15:04:05" }}"""
