@@ -10,8 +10,7 @@ import (
 type Network struct {
 	segments.Segment
 
-	Data []Data
-
+	Data   []Data
 	Parser *NetworkParser
 }
 
@@ -20,14 +19,14 @@ func New(conf segments.Config) (segments.Reader, error) {
 	var err error
 
 	n.Segment = segments.NewSegment(n.handleMsg)
-	n.Data = make([]Data, 2)
+	n.Data = make([]Data, 10)
 
 	n.Parser, err = NewNetworkParser()
 	if err != nil {
 		return &n, err
 	}
 
-	n.Template, err = template.New("").Parse(conf.StrippedTemplate())
+	n.Template, err = template.New("").Funcs(helpers).Parse(conf.StrippedTemplate())
 	if err != nil {
 		return &n, fmt.Errorf("Unable to parse Network template: %s", err)
 	}
@@ -53,9 +52,7 @@ func (n *Network) handleMsg(msg any) error {
 
 		n.Sync <- struct{}{}
 	case segments.ParseMsg:
-		for i := range n.Data {
-			err = n.Parser.Parse(&n.Data[i])
-		}
+		err = n.Parser.Parse(n.Data)
 	default:
 		panic("Invalid message")
 	}

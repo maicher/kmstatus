@@ -10,8 +10,7 @@ import (
 type Mem struct {
 	segments.Segment
 
-	Data Data
-
+	Data   Data
 	Parser *MemParser
 }
 

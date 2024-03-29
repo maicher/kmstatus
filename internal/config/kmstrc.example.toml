@@ -50,5 +50,8 @@ parsername = "network"
 parseinterval = "1s"
 parseonsig = false
 template = """
- {{ .Name }}
+{{ if .Name | hasPrefix "en" }}
+ [{{ .Name }} {{ .Rx | human 0 | ljust 4 }}{{ .Tx | human 0 | ljust 4 }}]
+{{ end }}
+
 """

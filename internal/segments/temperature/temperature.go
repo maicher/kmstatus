@@ -10,8 +10,7 @@ import (
 type Temperature struct {
 	segments.Segment
 
-	Data []Data
-
+	Data   []Data
 	Parser *TemperatureParser
 }
 

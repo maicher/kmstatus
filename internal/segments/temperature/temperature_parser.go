@@ -16,8 +16,7 @@ type sensor struct {
 }
 
 type TemperatureParser struct {
-	sensors   []sensor
-	formatter string
+	sensors []sensor
 }
 
 func NewTemperatureParser() (*TemperatureParser, error) {
