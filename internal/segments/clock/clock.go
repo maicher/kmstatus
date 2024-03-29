@@ -3,21 +3,20 @@ package clock
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"time"
 
 	"github.com/maicher/kmst/internal/segments"
 )
 
 type Clock struct {
-	Template *template.Template
+	segments.Template
 }
 
 func New(conf segments.Config) (segments.Reader, error) {
 	var c Clock
 	var err error
 
-	c.Template, err = template.New("").Funcs(helpers).Parse(conf.StrippedTemplate())
+	err = c.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
 		return &c, fmt.Errorf("Unable to parse CPU template: %s", err)
 	}
@@ -26,5 +25,5 @@ func New(conf segments.Config) (segments.Reader, error) {
 }
 
 func (c *Clock) Read(b *bytes.Buffer) {
-	c.Template.Execute(b, time.Now())
+	c.Tmpl.Execute(b, time.Now())
 }

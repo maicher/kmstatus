@@ -2,13 +2,13 @@ package network
 
 import (
 	"fmt"
-	"text/template"
 
 	"github.com/maicher/kmst/internal/segments"
 )
 
 type Network struct {
 	segments.Segment
+	segments.Template
 
 	Data   []Data
 	Parser *NetworkParser
@@ -26,7 +26,7 @@ func New(conf segments.Config) (segments.Reader, error) {
 		return &n, err
 	}
 
-	n.Template, err = template.New("").Funcs(helpers).Parse(conf.StrippedTemplate())
+	err = n.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
 		return &n, fmt.Errorf("Unable to parse Network template: %s", err)
 	}
@@ -44,7 +44,7 @@ func (n *Network) handleMsg(msg any) error {
 	switch msg := msg.(type) {
 	case segments.ReadMsg:
 		for i := range n.Data {
-			err = n.Template.Execute(msg.Buffer, n.Data[i])
+			err = n.Tmpl.Execute(msg.Buffer, n.Data[i])
 			if err != nil {
 				break
 			}

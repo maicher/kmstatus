@@ -3,7 +3,6 @@ package segments
 import (
 	"bytes"
 	"fmt"
-	"text/template"
 	"time"
 )
 
@@ -15,8 +14,6 @@ type HandleMsgFunc func(any) error
 type Segment struct {
 	MsgQueue chan any
 	Sync     chan any
-
-	Template *template.Template
 }
 
 func NewSegment(handleMsg HandleMsgFunc) (s Segment) {

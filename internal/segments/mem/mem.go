@@ -2,13 +2,13 @@ package mem
 
 import (
 	"fmt"
-	"text/template"
 
 	"github.com/maicher/kmst/internal/segments"
 )
 
 type Mem struct {
 	segments.Segment
+	segments.Template
 
 	Data   Data
 	Parser *MemParser
@@ -25,7 +25,7 @@ func New(conf segments.Config) (segments.Reader, error) {
 		return &m, err
 	}
 
-	m.Template, err = template.New("").Funcs(helpers).Parse(conf.StrippedTemplate())
+	err = m.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
 		return &m, fmt.Errorf("Unable to parse Mem template: %s", err)
 	}
@@ -42,7 +42,7 @@ func (m *Mem) handleMsg(msg any) error {
 
 	switch msg := msg.(type) {
 	case segments.ReadMsg:
-		err = m.Template.Execute(msg.Buffer, m.Data)
+		err = m.Tmpl.Execute(msg.Buffer, m.Data)
 		m.Sync <- struct{}{}
 	case segments.ParseMsg:
 		err = m.Parser.Parse(&m.Data)

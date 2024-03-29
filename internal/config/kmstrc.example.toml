@@ -42,7 +42,6 @@ template = """
 {{ end }}
 """
 
-
 [[segment]]
 parsername = "network"
 parseinterval = "1s"

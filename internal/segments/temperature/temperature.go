@@ -2,13 +2,13 @@ package temperature
 
 import (
 	"fmt"
-	"text/template"
 
 	"github.com/maicher/kmst/internal/segments"
 )
 
 type Temperature struct {
 	segments.Segment
+	segments.Template
 
 	Data   []Data
 	Parser *TemperatureParser
@@ -25,7 +25,7 @@ func New(conf segments.Config) (segments.Reader, error) {
 		return &t, err
 	}
 
-	t.Template, err = template.New("").Parse(conf.StrippedTemplate())
+	err = t.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
 		return &t, fmt.Errorf("Unable to parse Temperature template: %s", err)
 	}
@@ -47,7 +47,7 @@ func (t *Temperature) handleMsg(msg any) error {
 	switch msg := msg.(type) {
 	case segments.ReadMsg:
 		for i := range t.Data {
-			err = t.Template.Execute(msg.Buffer, t.Data[i])
+			err = t.Tmpl.Execute(msg.Buffer, t.Data[i])
 			if err != nil {
 				break
 			}

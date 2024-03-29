@@ -2,13 +2,13 @@ package cpu
 
 import (
 	"fmt"
-	"text/template"
 
 	"github.com/maicher/kmst/internal/segments"
 )
 
 type CPU struct {
 	segments.Segment
+	segments.Template
 
 	Data Data
 
@@ -32,7 +32,7 @@ func New(conf segments.Config) (segments.Reader, error) {
 		return &c, err
 	}
 
-	c.Template, err = template.New("").Funcs(helpers).Parse(conf.StrippedTemplate())
+	err = c.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
 		return &c, fmt.Errorf("Unable to parse CPU template: %s", err)
 	}
@@ -49,15 +49,13 @@ func (c *CPU) handleMsg(msg any) error {
 
 	switch msg := msg.(type) {
 	case segments.ReadMsg:
-		err = c.Template.Execute(msg.Buffer, c.Data)
-
+		err = c.Tmpl.Execute(msg.Buffer, c.Data)
 		c.Sync <- struct{}{}
 	case segments.ParseMsg:
 		err = c.LoadParser.Parse(&c.Data.Load)
 		if err != nil {
 			return nil
 		}
-
 		err = c.FreqParser.Parse(&c.Data.Freq)
 	default:
 		panic("Invalid message")
