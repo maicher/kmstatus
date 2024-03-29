@@ -53,10 +53,6 @@ func (m *Mem) handleMsg(msg any) error {
 	switch msg := msg.(type) {
 	case read:
 		err = m.Template.Execute(msg.buffer, m.Data)
-		if err != nil {
-			break
-		}
-
 		m.Sync <- struct{}{}
 	case parse:
 		err = m.Parser.Parse(&m.Data)

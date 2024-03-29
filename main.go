@@ -13,6 +13,7 @@ import (
 	"github.com/maicher/kmst/internal/segments"
 	"github.com/maicher/kmst/internal/segments/cpu"
 	"github.com/maicher/kmst/internal/segments/mem"
+	"github.com/maicher/kmst/internal/segments/network"
 	"github.com/maicher/kmst/internal/segments/temperature"
 	"github.com/maicher/kmst/internal/ui"
 )
@@ -34,6 +35,7 @@ func NewSegmentsBuilder() *SegmentsBuilder {
 			"cpu":         cpu.New,
 			"temperature": temperature.New,
 			"mem":         mem.New,
+			"network":     network.New,
 		},
 	}
 }

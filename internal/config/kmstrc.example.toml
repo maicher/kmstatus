@@ -43,3 +43,12 @@ template = """
  Swap: {{ .SwapUsed | human 0 }}/{{ .SwapTotal | human 0 }} ({{ .SwapUsedPercentage | printf "%.1f"}}%)
 {{ end }}
 """
+
+
+[[segment]]
+parsername = "network"
+parseinterval = "1s"
+parseonsig = false
+template = """
+ {{ .Name }}
+"""
