@@ -1,24 +1,46 @@
 package segments
 
 import (
-	"bytes"
-	"strings"
+	"fmt"
+	"text/template"
 	"time"
 )
 
-type NewSegmentFunc func(SegmentConfig) (Segment, error)
+type HandleMsgFunc func(any) error
 
-type Segment interface {
-	Read(*bytes.Buffer)
+type Segment struct {
+	MsgQueue chan any
+	Sync     chan any
+
+	Template *template.Template
 }
 
-type SegmentConfig struct {
-	ParserName    string
-	ParseInterval time.Duration
-	ParseOnSig    bool
-	Template      string
+func NewSegment(handleMsg HandleMsgFunc) (s Segment) {
+	s.MsgQueue = make(chan any)
+	s.Sync = make(chan any)
+
+	go s.Loop(handleMsg)
+
+	return s
 }
 
-func (c SegmentConfig) StrippedTemplate() string {
-	return strings.ReplaceAll(c.Template, "\n", "")
+func (a Segment) Loop(f HandleMsgFunc) {
+	var err error
+
+	for msg := range a.MsgQueue {
+		err = f(msg)
+
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+		}
+	}
+}
+
+func (a *Segment) OnTick(interval time.Duration, f func()) {
+	f()
+
+	ticker := time.NewTicker(interval)
+	for range ticker.C {
+		f()
+	}
 }

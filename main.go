@@ -12,6 +12,7 @@ import (
 	"github.com/maicher/kmst/internal/options"
 	"github.com/maicher/kmst/internal/segments"
 	"github.com/maicher/kmst/internal/segments/cpu"
+	"github.com/maicher/kmst/internal/segments/mem"
 	"github.com/maicher/kmst/internal/segments/temperature"
 	"github.com/maicher/kmst/internal/ui"
 )
@@ -21,13 +22,24 @@ var version string
 //go:embed doc.txt
 var doc string
 
-var constructors = map[string]segments.NewSegmentFunc{
-	"cpu":         cpu.New,
-	"temperature": temperature.New,
+type NewSegmentFunc func(segments.Config) (segments.Reader, error)
+
+type SegmentsBuilder struct {
+	builders map[string]NewSegmentFunc
 }
 
-func NewSegment(c segments.SegmentConfig) (segments.Segment, error) {
-	newParserFunc, ok := constructors[c.ParserName]
+func NewSegmentsBuilder() *SegmentsBuilder {
+	return &SegmentsBuilder{
+		builders: map[string]NewSegmentFunc{
+			"cpu":         cpu.New,
+			"temperature": temperature.New,
+			"mem":         mem.New,
+		},
+	}
+}
+
+func (b *SegmentsBuilder) New(c segments.Config) (segments.Reader, error) {
+	newParserFunc, ok := b.builders[c.ParserName]
 	if !ok {
 		return nil, errors.New("Invalid parser name: " + c.ParserName)
 	}
@@ -61,17 +73,18 @@ func main() {
 	}
 
 	buf := bytes.Buffer{}
-	var component segments.Segment
-	var components []segments.Segment
+	segmentsBuilder := NewSegmentsBuilder()
+	var segment segments.Reader
+	var segments []segments.Reader
 
 	for _, p := range c.Segments {
-		component, err = NewSegment(p)
+		segment, err = segmentsBuilder.New(p)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(4)
 		}
 
-		components = append(components, component)
+		segments = append(segments, segment)
 	}
 
 	buf.WriteString("Starting...")
@@ -79,8 +92,8 @@ func main() {
 	time.Sleep(100 * time.Millisecond)
 
 	for {
-		for i := range components {
-			components[i].Read(&buf)
+		for i := range segments {
+			segments[i].Read(&buf)
 		}
 		view.Flush(&buf)
 		time.Sleep(time.Second)

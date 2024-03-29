@@ -16,7 +16,7 @@ var kmstrcExample string
 
 type Config struct {
 	Timefmt  string
-	Segments []segments.SegmentConfig `toml:"segment"`
+	Segments []segments.Config `toml:"segment"`
 }
 
 func New(path string) (Config, error) {

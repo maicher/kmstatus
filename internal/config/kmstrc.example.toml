@@ -32,3 +32,14 @@ template = """{{ if .Name | eq "k10temp" }}
 # {{ .Value }}°
 # {{ end }}"""
 # https://github.com/maicher/kmst/blob/master/internal/hardware/temperature/data.go
+
+[[segment]]
+parsername = "mem"
+parseinterval = "1s"
+parseonsig = false
+template = """
+ {{ .Used | human 0 }}/{{ .Total | human 0 }}({{ .UsedPercentage | printf "%.1f" }}%)
+{{ if .SwapUsed | gt 0 }}
+ Swap: {{ .SwapUsed | human 0 }}/{{ .SwapTotal | human 0 }} ({{ .SwapUsedPercentage | printf "%.1f"}}%)
+{{ end }}
+"""
