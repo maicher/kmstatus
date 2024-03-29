@@ -1,15 +1,11 @@
 package temperature
 
 import (
-	"bytes"
 	"fmt"
 	"text/template"
 
 	"github.com/maicher/kmst/internal/segments"
 )
-
-type parse struct{}
-type read struct{ buffer *bytes.Buffer }
 
 type Temperature struct {
 	segments.Segment
@@ -36,7 +32,7 @@ func New(conf segments.Config) (segments.Reader, error) {
 	}
 
 	go t.OnTick(conf.ParseInterval, func() {
-		t.MsgQueue <- parse{}
+		t.MsgQueue <- segments.ParseMsg{}
 	})
 
 	for _, name := range t.Parser.Names() {
@@ -46,25 +42,20 @@ func New(conf segments.Config) (segments.Reader, error) {
 	return &t, nil
 }
 
-func (t *Temperature) Read(b *bytes.Buffer) {
-	t.MsgQueue <- read{buffer: b}
-	<-t.Sync
-}
-
 func (t *Temperature) handleMsg(msg any) error {
 	var err error
 
 	switch msg := msg.(type) {
-	case read:
+	case segments.ReadMsg:
 		for i := range t.Data {
-			err = t.Template.Execute(msg.buffer, t.Data[i])
+			err = t.Template.Execute(msg.Buffer, t.Data[i])
 			if err != nil {
 				break
 			}
 		}
 
 		t.Sync <- struct{}{}
-	case parse:
+	case segments.ParseMsg:
 		err = t.Parser.Parse(t.Data)
 	default:
 		panic("Invalid message")

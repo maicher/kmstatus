@@ -1,10 +1,14 @@
 package segments
 
 import (
+	"bytes"
 	"fmt"
 	"text/template"
 	"time"
 )
+
+type ReadMsg struct{ Buffer *bytes.Buffer }
+type ParseMsg struct{}
 
 type HandleMsgFunc func(any) error
 
@@ -24,10 +28,10 @@ func NewSegment(handleMsg HandleMsgFunc) (s Segment) {
 	return s
 }
 
-func (a Segment) Loop(f HandleMsgFunc) {
+func (s Segment) Loop(f HandleMsgFunc) {
 	var err error
 
-	for msg := range a.MsgQueue {
+	for msg := range s.MsgQueue {
 		err = f(msg)
 
 		if err != nil {
@@ -36,7 +40,12 @@ func (a Segment) Loop(f HandleMsgFunc) {
 	}
 }
 
-func (a *Segment) OnTick(interval time.Duration, f func()) {
+func (s *Segment) Read(b *bytes.Buffer) {
+	s.MsgQueue <- ReadMsg{Buffer: b}
+	<-s.Sync
+}
+
+func (s *Segment) OnTick(interval time.Duration, f func()) {
 	f()
 
 	ticker := time.NewTicker(interval)

@@ -1,15 +1,11 @@
 package network
 
 import (
-	"bytes"
 	"fmt"
 	"text/template"
 
 	"github.com/maicher/kmst/internal/segments"
 )
-
-type parse struct{}
-type read struct{ buffer *bytes.Buffer }
 
 type Network struct {
 	segments.Segment
@@ -37,31 +33,26 @@ func New(conf segments.Config) (segments.Reader, error) {
 	}
 
 	go n.OnTick(conf.ParseInterval, func() {
-		n.MsgQueue <- parse{}
+		n.MsgQueue <- segments.ParseMsg{}
 	})
 
 	return &n, nil
-}
-
-func (n *Network) Read(b *bytes.Buffer) {
-	n.MsgQueue <- read{buffer: b}
-	<-n.Sync
 }
 
 func (n *Network) handleMsg(msg any) error {
 	var err error
 
 	switch msg := msg.(type) {
-	case read:
+	case segments.ReadMsg:
 		for i := range n.Data {
-			err = n.Template.Execute(msg.buffer, n.Data[i])
+			err = n.Template.Execute(msg.Buffer, n.Data[i])
 			if err != nil {
 				break
 			}
 		}
 
 		n.Sync <- struct{}{}
-	case parse:
+	case segments.ParseMsg:
 		for i := range n.Data {
 			err = n.Parser.Parse(&n.Data[i])
 		}

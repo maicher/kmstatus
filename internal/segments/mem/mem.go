@@ -1,15 +1,11 @@
 package mem
 
 import (
-	"bytes"
 	"fmt"
 	"text/template"
 
 	"github.com/maicher/kmst/internal/segments"
 )
-
-type parse struct{}
-type read struct{ buffer *bytes.Buffer }
 
 type Mem struct {
 	segments.Segment
@@ -36,25 +32,20 @@ func New(conf segments.Config) (segments.Reader, error) {
 	}
 
 	go m.OnTick(conf.ParseInterval, func() {
-		m.MsgQueue <- parse{}
+		m.MsgQueue <- segments.ParseMsg{}
 	})
 
 	return &m, nil
-}
-
-func (t *Mem) Read(b *bytes.Buffer) {
-	t.MsgQueue <- read{buffer: b}
-	<-t.Sync
 }
 
 func (m *Mem) handleMsg(msg any) error {
 	var err error
 
 	switch msg := msg.(type) {
-	case read:
-		err = m.Template.Execute(msg.buffer, m.Data)
+	case segments.ReadMsg:
+		err = m.Template.Execute(msg.Buffer, m.Data)
 		m.Sync <- struct{}{}
-	case parse:
+	case segments.ParseMsg:
 		err = m.Parser.Parse(&m.Data)
 	default:
 		panic("Invalid message")
