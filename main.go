@@ -99,6 +99,7 @@ func main() {
 		for i := range segments {
 			segments[i].Read(&buf)
 		}
+
 		view.Flush(&buf)
 		time.Sleep(time.Second)
 	}

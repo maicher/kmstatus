@@ -6,30 +6,43 @@ import (
 	"time"
 )
 
-type ReadMsg struct{ Buffer *bytes.Buffer }
-type ParseMsg struct{}
+type readMsg struct{ Buffer *bytes.Buffer }
+type parseMsg struct{}
 
-type HandleMsgFunc func(any) error
+type handleReadMsgFunc func(*bytes.Buffer) error
+type handleParseMsgFunc func() error
 
 type Segment struct {
-	MsgQueue chan any
-	Sync     chan any
+	msgQueue chan any
+	sync     chan any
 }
 
-func NewSegment(handleMsg HandleMsgFunc) (s Segment) {
-	s.MsgQueue = make(chan any)
-	s.Sync = make(chan any)
+func NewSegment(r handleReadMsgFunc, p handleParseMsgFunc, parseInterval time.Duration) (s Segment) {
+	s.msgQueue = make(chan any)
+	s.sync = make(chan any)
 
-	go s.Loop(handleMsg)
+	go s.Loop(r, p)
+
+	go s.onTick(parseInterval, func() {
+		s.msgQueue <- parseMsg{}
+	})
 
 	return s
 }
 
-func (s Segment) Loop(f HandleMsgFunc) {
+func (s Segment) Loop(r handleReadMsgFunc, p handleParseMsgFunc) {
 	var err error
 
-	for msg := range s.MsgQueue {
-		err = f(msg)
+	for msg := range s.msgQueue {
+		switch msg := msg.(type) {
+		case readMsg:
+			err = r(msg.Buffer)
+			s.sync <- struct{}{}
+		case parseMsg:
+			err = p()
+		default:
+			panic("Invalid message")
+		}
 
 		if err != nil {
 			fmt.Printf("%+v\n", err)
@@ -38,11 +51,11 @@ func (s Segment) Loop(f HandleMsgFunc) {
 }
 
 func (s *Segment) Read(b *bytes.Buffer) {
-	s.MsgQueue <- ReadMsg{Buffer: b}
-	<-s.Sync
+	s.msgQueue <- readMsg{Buffer: b}
+	<-s.sync
 }
 
-func (s *Segment) OnTick(interval time.Duration, f func()) {
+func (s *Segment) onTick(interval time.Duration, f func()) {
 	f()
 
 	ticker := time.NewTicker(interval)

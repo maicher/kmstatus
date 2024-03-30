@@ -1,6 +1,7 @@
 package mem
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/maicher/kmst/internal/segments"
@@ -18,41 +19,25 @@ func New(conf segments.Config) (segments.Reader, error) {
 	var m Mem
 	var err error
 
-	m.Segment = segments.NewSegment(m.handleMsg)
-
 	m.Parser, err = NewMemParser()
 	if err != nil {
 		return &m, err
 	}
+
+	m.Segment = segments.NewSegment(m.readMsg, m.parseMsg, conf.ParseInterval)
 
 	err = m.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
 		return &m, fmt.Errorf("Unable to parse Mem template: %s", err)
 	}
 
-	go m.OnTick(conf.ParseInterval, func() {
-		m.MsgQueue <- segments.ParseMsg{}
-	})
-
 	return &m, nil
 }
 
-func (m *Mem) handleMsg(msg any) error {
-	var err error
+func (m *Mem) readMsg(b *bytes.Buffer) error {
+	return m.Tmpl.Execute(b, m.Data)
+}
 
-	switch msg := msg.(type) {
-	case segments.ReadMsg:
-		err = m.Tmpl.Execute(msg.Buffer, m.Data)
-		m.Sync <- struct{}{}
-	case segments.ParseMsg:
-		err = m.Parser.Parse(&m.Data)
-	default:
-		panic("Invalid message")
-	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (m *Mem) parseMsg() error {
+	return m.Parser.Parse(&m.Data)
 }

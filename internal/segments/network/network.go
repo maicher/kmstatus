@@ -1,6 +1,7 @@
 package network
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/maicher/kmst/internal/segments"
@@ -18,7 +19,6 @@ func New(conf segments.Config) (segments.Reader, error) {
 	var n Network
 	var err error
 
-	n.Segment = segments.NewSegment(n.handleMsg)
 	n.Data = make([]Data, 10)
 
 	n.Parser, err = NewNetworkParser()
@@ -31,35 +31,24 @@ func New(conf segments.Config) (segments.Reader, error) {
 		return &n, fmt.Errorf("Unable to parse Network template: %s", err)
 	}
 
-	go n.OnTick(conf.ParseInterval, func() {
-		n.MsgQueue <- segments.ParseMsg{}
-	})
+	n.Segment = segments.NewSegment(n.read, n.parse, conf.ParseInterval)
 
 	return &n, nil
 }
 
-func (n *Network) handleMsg(msg any) error {
+func (n *Network) read(b *bytes.Buffer) error {
 	var err error
 
-	switch msg := msg.(type) {
-	case segments.ReadMsg:
-		for i := range n.Data {
-			err = n.Tmpl.Execute(msg.Buffer, n.Data[i])
-			if err != nil {
-				break
-			}
+	for i := range n.Data {
+		err = n.Tmpl.Execute(b, n.Data[i])
+		if err != nil {
+			break
 		}
-
-		n.Sync <- struct{}{}
-	case segments.ParseMsg:
-		err = n.Parser.Parse(n.Data)
-	default:
-		panic("Invalid message")
 	}
 
-	if err != nil {
-		return err
-	}
+	return err
+}
 
-	return nil
+func (n *Network) parse() error {
+	return n.Parser.Parse(n.Data)
 }
