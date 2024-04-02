@@ -17,6 +17,7 @@ import (
 	"github.com/maicher/kmst/internal/segments/cpu"
 	"github.com/maicher/kmst/internal/segments/mem"
 	"github.com/maicher/kmst/internal/segments/network"
+	"github.com/maicher/kmst/internal/segments/processes"
 	"github.com/maicher/kmst/internal/segments/temperature"
 	"github.com/maicher/kmst/internal/ui"
 )
@@ -42,6 +43,7 @@ func NewSegmentsBuilder() *SegmentsBuilder {
 			"clock":       clock.New,
 			"bluetooth":   bluetooth.New,
 			"audio":       audio.New,
+			"processes":   processes.New,
 		},
 	}
 }

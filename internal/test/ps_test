@@ -1,0 +1,25 @@
+#!/bin/sh
+
+echo "1174 pts/19   00:00:00 zsh
+   1185 pts/13   00:00:00 tmux: client
+   1192 pts/16   00:00:00 vim
+   1207 pts/18   00:00:00 vim
+   1235 ?        00:00:13 firefox
+   1349 ?        00:00:00 gvfsd
+   1356 ?        00:00:00 gvfsd-fuse
+   1385 ?        00:00:00 at-spi-bus-laun
+   1390 ?        00:00:00 Socket Process
+   1417 ?        00:00:00 Privileged Cont
+   1472 ?        00:00:03 WebExtensions
+   1523 ?        00:00:00 Utility Process
+   1536 ?        00:00:00 Web Content
+   1540 ?        00:00:00 Web Content
+   1553 ?        00:00:00 Web Content
+   1627 ?        00:00:17 brave
+   1632 ?        00:00:00 chrome_crashpad
+   1634 ?        00:00:00 chrome_crashpad
+   1640 ?        00:00:00 brave
+   1641 ?        00:00:00 brave
+   1643 ?        00:00:00 brave
+   1665 ?        00:01:35 brave
+"

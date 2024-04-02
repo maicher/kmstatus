@@ -1,9 +1,24 @@
 [[segment]]
+parsername = "processes"
+parseinterval = "1s"
+parseonsig = false
+template = """
+ chrome
+ firefox
+ rsync
+ zoom
+V vpn
+󰎁 mpv
+ sxiv
+ gimp
+"""
+
+[[segment]]
 parsername = "bluetooth"
 parseinterval = "1m"
 parseonsig = false
 template = """
-{{ if .IsServiceActive }}
+ {{ if .IsServiceActive }}
 {{ if .IsControllerPowered }}󰂯{{ else }}󰂲{{ end }}
 {{ if .DeviceType | eq "audio-headset" }}{{ end }}
 {{ if .DeviceType | eq "audio-card" }}󰓃{{ end }}
