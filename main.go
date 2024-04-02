@@ -11,6 +11,8 @@ import (
 	"github.com/maicher/kmst/internal/config"
 	"github.com/maicher/kmst/internal/options"
 	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/audio"
+	"github.com/maicher/kmst/internal/segments/bluetooth"
 	"github.com/maicher/kmst/internal/segments/clock"
 	"github.com/maicher/kmst/internal/segments/cpu"
 	"github.com/maicher/kmst/internal/segments/mem"
@@ -38,6 +40,8 @@ func NewSegmentsBuilder() *SegmentsBuilder {
 			"mem":         mem.New,
 			"network":     network.New,
 			"clock":       clock.New,
+			"bluetooth":   bluetooth.New,
+			"audio":       audio.New,
 		},
 	}
 }

@@ -1,4 +1,30 @@
 [[segment]]
+parsername = "bluetooth"
+parseinterval = "1m"
+parseonsig = false
+template = """
+{{ if .IsServiceActive }}
+{{ if .IsControllerPowered }}󰂯{{ else }}󰂲{{ end }}
+{{ if .DeviceType | eq "audio-headset" }}{{ end }}
+{{ if .DeviceType | eq "audio-card" }}󰓃{{ end }}
+{{ end }}
+"""
+
+[[segment]]
+parsername = "audio"
+parseinterval = "1m"
+parseonsig = false
+template = """
+ {{ if .OutAvailable }}
+{{ if .OutMuted }}󰖁{{ else }}{{ end }}{{ .OutVolume }}%
+{{ end }}
+{{ if .InAvailable }}
+{{ if .InMuted }}{{ else }}󰍬{{ end }}{{ .InVolume }}%
+{{ end }}
+"""
+
+
+[[segment]]
 parsername = "cpu"
 parseinterval = "1s"
 parseonsig = false

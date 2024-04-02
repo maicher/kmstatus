@@ -31,7 +31,7 @@ func New(conf segments.Config) (segments.Reader, error) {
 		return &c, err
 	}
 
-	c.Segment = segments.NewSegment(c.readMsg, c.parseMsg, conf.ParseInterval)
+	c.Segment = segments.NewSegment(c.read, c.parse, conf.ParseInterval)
 
 	err = c.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
@@ -41,11 +41,11 @@ func New(conf segments.Config) (segments.Reader, error) {
 	return &c, nil
 }
 
-func (c *CPU) readMsg(b *bytes.Buffer) error {
+func (c *CPU) read(b *bytes.Buffer) error {
 	return c.Tmpl.Execute(b, c.Data)
 }
 
-func (c *CPU) parseMsg() error {
+func (c *CPU) parse() error {
 	err := c.LoadParser.Parse(&c.Data.Load)
 	if err != nil {
 		return err
