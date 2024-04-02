@@ -15,7 +15,7 @@ type Network struct {
 	Parser *NetworkParser
 }
 
-func New(conf segments.Config) (segments.Reader, error) {
+func New(conf segments.Config) (segments.ParseReader, error) {
 	var n Network
 	var err error
 

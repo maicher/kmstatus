@@ -20,6 +20,7 @@ OPTIONS
                          (to use this option kmstatus needs to be build with -tag X)
   --doc                  print documentation
   --version,        -v   print version
+  --text TEXT,      -t   set text
 
 CONFIG
   See the below link for example config:
@@ -37,6 +38,7 @@ type Options struct {
 	Doc        bool
 	Version    bool
 	XWindow    bool
+	Text       string
 }
 
 func Parse() Options {
@@ -52,6 +54,9 @@ func Parse() Options {
 
 	flag.BoolVar(&opts.XWindow, "xwindow", false, "")
 	flag.BoolVar(&opts.XWindow, "x", false, "")
+
+	flag.StringVar(&opts.Text, "text", "", "")
+	flag.StringVar(&opts.Text, "t", "", "")
 
 	f := flag.CommandLine.Output()
 	flag.Usage = func() { fmt.Fprintf(f, help) }

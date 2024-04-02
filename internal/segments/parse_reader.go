@@ -2,6 +2,7 @@ package segments
 
 import "bytes"
 
-type Reader interface {
+type ParseReader interface {
+	Parse()
 	Read(*bytes.Buffer)
 }

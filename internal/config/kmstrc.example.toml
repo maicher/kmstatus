@@ -1,4 +1,10 @@
 [[segment]]
+parsername = "text"
+parseinterval = "1s"
+parseonsig = false
+template = "{{ . }}"
+
+[[segment]]
 parsername = "processes"
 parseinterval = "1s"
 parseonsig = false

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func Test_FSParser(t *testing.T) {
+func Test_ProcessesParser(t *testing.T) {
 	basePath := os.Getenv("BASE_PATH")
 	if basePath == "" {
 		panic("BASE_PATH not set")

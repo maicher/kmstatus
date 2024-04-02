@@ -15,7 +15,7 @@ type Mem struct {
 	Parser *MemParser
 }
 
-func New(conf segments.Config) (segments.Reader, error) {
+func New(conf segments.Config) (segments.ParseReader, error) {
 	var m Mem
 	var err error
 

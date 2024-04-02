@@ -25,6 +25,7 @@ func NewSegment(r handleReadMsgFunc, p handleParseMsgFunc, parseInterval time.Du
 
 	go s.onTick(parseInterval, func() {
 		s.msgQueue <- parseMsg{}
+		<-s.sync
 	})
 
 	return s
@@ -40,6 +41,7 @@ func (s Segment) Loop(r handleReadMsgFunc, p handleParseMsgFunc) {
 			s.sync <- struct{}{}
 		case parseMsg:
 			err = p()
+			s.sync <- struct{}{}
 		default:
 			panic("Invalid message")
 		}
@@ -52,6 +54,11 @@ func (s Segment) Loop(r handleReadMsgFunc, p handleParseMsgFunc) {
 
 func (s *Segment) Read(b *bytes.Buffer) {
 	s.msgQueue <- readMsg{Buffer: b}
+	<-s.sync
+}
+
+func (s *Segment) Parse() {
+	s.msgQueue <- parseMsg{}
 	<-s.sync
 }
 

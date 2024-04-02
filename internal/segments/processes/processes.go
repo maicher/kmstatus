@@ -17,7 +17,7 @@ type Processes struct {
 	Parser *ProcessesParser
 }
 
-func New(conf segments.Config) (segments.Reader, error) {
+func New(conf segments.Config) (segments.ParseReader, error) {
 	var p Processes
 	var err error
 	var r *strings.Reader

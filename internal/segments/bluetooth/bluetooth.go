@@ -15,7 +15,7 @@ type Bluetooth struct {
 	Parser *BluetoothParser
 }
 
-func New(conf segments.Config) (segments.Reader, error) {
+func New(conf segments.Config) (segments.ParseReader, error) {
 	var bt Bluetooth
 	var err error
 

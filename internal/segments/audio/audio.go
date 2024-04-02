@@ -15,7 +15,7 @@ type Audio struct {
 	Parser *AudioParser
 }
 
-func New(conf segments.Config) (segments.Reader, error) {
+func New(conf segments.Config) (segments.ParseReader, error) {
 	var a Audio
 	var err error
 

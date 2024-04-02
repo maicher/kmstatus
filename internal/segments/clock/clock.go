@@ -12,7 +12,7 @@ type Clock struct {
 	segments.Template
 }
 
-func New(conf segments.Config) (segments.Reader, error) {
+func New(conf segments.Config) (segments.ParseReader, error) {
 	var c Clock
 	var err error
 
@@ -26,4 +26,6 @@ func New(conf segments.Config) (segments.Reader, error) {
 
 func (c *Clock) Read(b *bytes.Buffer) {
 	c.Tmpl.Execute(b, time.Now())
+}
+func (c *Clock) Parse() {
 }

@@ -21,7 +21,7 @@ func NewProcessesParser() (*ProcessesParser, error) {
 func (p *ProcessesParser) Parse(data []Data) error {
 	var buf bytes.Buffer
 
-	cmd := exec.Command(p.command, "-e")
+	cmd := exec.Command(p.command, "-e", "-o", "comm=")
 	cmd.Stdout = &buf
 	err := cmd.Run()
 	if err != nil {
@@ -36,8 +36,9 @@ func (p *ProcessesParser) Parse(data []Data) error {
 	s.Split(bufio.ScanLines)
 	for s.Scan() {
 		for i, d := range data {
-			if strings.Contains(s.Text(), d.phrase) {
+			if strings.HasPrefix(s.Text(), d.phrase) {
 				data[i].active = true
+				break
 			}
 		}
 	}
