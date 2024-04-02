@@ -25,7 +25,7 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 		return &t, fmt.Errorf("Unable to parse Text template: %s", err)
 	}
 
-	t.Segment = segments.NewSegment(t.read, t.parse, conf.ParseInterval)
+	t.Segment = segments.NewSegment(t.read, t.parse, conf.RefreshInterval)
 
 	return &t, nil
 }

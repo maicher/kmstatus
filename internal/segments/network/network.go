@@ -31,7 +31,7 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 		return &n, fmt.Errorf("Unable to parse Network template: %s", err)
 	}
 
-	n.Segment = segments.NewSegment(n.read, n.parse, conf.ParseInterval)
+	n.Segment = segments.NewSegment(n.read, n.parse, conf.RefreshInterval)
 
 	return &n, nil
 }

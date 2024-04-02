@@ -17,13 +17,13 @@ type Segment struct {
 	sync     chan any
 }
 
-func NewSegment(r handleReadMsgFunc, p handleParseMsgFunc, parseInterval time.Duration) (s Segment) {
+func NewSegment(r handleReadMsgFunc, p handleParseMsgFunc, refreshInterval time.Duration) (s Segment) {
 	s.msgQueue = make(chan any)
 	s.sync = make(chan any)
 
 	go s.Loop(r, p)
 
-	go s.onTick(parseInterval, func() {
+	go s.onTick(refreshInterval, func() {
 		s.msgQueue <- parseMsg{}
 		<-s.sync
 	})

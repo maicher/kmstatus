@@ -6,10 +6,9 @@ import (
 )
 
 type Config struct {
-	ParserName    string
-	ParseInterval time.Duration
-	ParseOnSig    bool
-	Template      string
+	ParserName      string
+	RefreshInterval time.Duration
+	Template        string
 }
 
 func (c Config) StrippedTemplate() string {

@@ -9,7 +9,16 @@ var help = `NAME
   kmst - km status bar
 
 SYNOPSIS
-  kmst [OPTION...]
+  kmst [OPTION...]   // start printing status
+  kmst -r            // force a refresh
+  kmst -t TEXT       // set arbitrary text
+
+DESCRIPTION
+  Once started, kmst will print output every n seconds,
+  where n is the lowest +refreshinterval+ from parser options (default: 1s).
+  To trigger an additional refresh run:
+    kmst -r
+ (communicates with the main process via /tmp/kmst.socket.)
 
 OPTIONS
   --config PATH,    -c   path to a kmstrc file
@@ -21,16 +30,12 @@ OPTIONS
   --doc                  print documentation
   --version,        -v   print version
   --text TEXT,      -t   set text
+  --refresh,        -r   refresh now
 
 CONFIG
   See the below link for example config:
     https://github.com/maicher/kmst/blob/master/internal/config/kmstrc.example.toml
 
-SIGNALS
-  By default kmst will print to output every n seconds,
-  where n is the lowest interval from parser options (default 1s).
-  A signal can be sent to kmst to trigger an additional refresh:
-    pkill -USR1 kmst$
 `
 
 type Options struct {
@@ -39,6 +44,7 @@ type Options struct {
 	Version    bool
 	XWindow    bool
 	Text       string
+	Refresh    bool
 }
 
 func Parse() Options {
@@ -57,6 +63,9 @@ func Parse() Options {
 
 	flag.StringVar(&opts.Text, "text", "", "")
 	flag.StringVar(&opts.Text, "t", "", "")
+
+	flag.BoolVar(&opts.Refresh, "refresh", false, "")
+	flag.BoolVar(&opts.Refresh, "r", false, "")
 
 	f := flag.CommandLine.Output()
 	flag.Usage = func() { fmt.Fprintf(f, help) }

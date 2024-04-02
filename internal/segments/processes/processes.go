@@ -36,7 +36,7 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 		p.Data = append(p.Data, d)
 	}
 
-	p.Segment = segments.NewSegment(p.read, p.parse, conf.ParseInterval)
+	p.Segment = segments.NewSegment(p.read, p.parse, conf.RefreshInterval)
 
 	return &p, err
 }

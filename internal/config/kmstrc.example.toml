@@ -1,13 +1,11 @@
 [[segment]]
 parsername = "text"
-parseinterval = "1s"
-parseonsig = false
+refreshinterval = "1s"
 template = "{{ . }}"
 
 [[segment]]
 parsername = "processes"
-parseinterval = "1s"
-parseonsig = false
+refreshinterval = "1s"
 template = """
  chrome
  firefox
@@ -21,8 +19,7 @@ V vpn
 
 [[segment]]
 parsername = "bluetooth"
-parseinterval = "1m"
-parseonsig = false
+refreshinterval = "1m"
 template = """
  {{ if .IsServiceActive }}
 {{ if .IsControllerPowered }}󰂯{{ else }}󰂲{{ end }}
@@ -33,8 +30,7 @@ template = """
 
 [[segment]]
 parsername = "audio"
-parseinterval = "1m"
-parseonsig = false
+refreshinterval = "1m"
 template = """
  {{ if .OutAvailable }}
 {{ if .OutMuted }}󰖁{{ else }}{{ end }}{{ .OutVolume }}%
@@ -47,16 +43,14 @@ template = """
 
 [[segment]]
 parsername = "cpu"
-parseinterval = "1s"
-parseonsig = false
+refreshinterval = "1s"
 #template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}%"""
 template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}% {{ .Load | bar }}"""
 # https://github.com/maicher/kmst/blob/master/internal/hardware/cpu/data.go
 
 [[segment]]
 parsername = "temperature"
-parseinterval = "5s"
-parseonsig = false
+refreshinterval = "5s"
 template = """{{ if .Name | eq "k10temp" }}
  {{ .Value }}°
 {{ end }}"""
@@ -80,8 +74,7 @@ template = """{{ if .Name | eq "k10temp" }}
 
 [[segment]]
 parsername = "mem"
-parseinterval = "1s"
-parseonsig = false
+refreshinterval = "1s"
 template = """
  {{ .Used | human 0 }}/{{ .Total | human 0 }}({{ .UsedPercentage | printf "%.1f" }}%)
 {{ if .SwapUsed | gt 0 }}
@@ -91,8 +84,7 @@ template = """
 
 [[segment]]
 parsername = "network"
-parseinterval = "1s"
-parseonsig = false
+refreshinterval = "1s"
 template = """
 {{ if .Name | hasPrefix "en" }}
  [{{ .Name }} {{ .Rx | human 0 | ljust 4 }}{{ .Tx | human 0 | ljust 4 }}]

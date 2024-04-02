@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"time"
 
@@ -60,6 +61,8 @@ func (b *SegmentsBuilder) New(c segments.Config) (segments.ParseReader, error) {
 }
 
 func main() {
+	socketPath := "/tmp/kmst.sock"
+
 	opts := options.Parse()
 
 	if opts.Version {
@@ -72,6 +75,41 @@ func main() {
 		os.Exit(0)
 	}
 
+	if opts.Text != "" {
+		conn, err := net.Dial("unix", socketPath)
+		if err != nil {
+			fmt.Println("Main process is not running: Error connecting to socket:", err)
+			os.Exit(1)
+		}
+
+		_, err = conn.Write([]byte(opts.Text))
+		if err != nil {
+			fmt.Println("Error sending message:", err)
+			return
+		}
+
+		conn.Close()
+		os.Exit(0)
+	}
+
+	if opts.Refresh {
+		conn, err := net.Dial("unix", socketPath)
+		if err != nil {
+			fmt.Println("Error connecting to socket:", err)
+			return
+		}
+		defer conn.Close()
+
+		_, err = conn.Write([]byte("cmd:refresh"))
+		if err != nil {
+			fmt.Println("Error sending message:", err)
+			return
+		}
+
+		os.Exit(0)
+	}
+
+	os.Remove(socketPath)
 	c, err := config.New(opts.ConfigPath)
 	if err != nil {
 		fmt.Println(err)
@@ -104,9 +142,44 @@ func main() {
 	view.Flush(&buf)
 	time.Sleep(10 * time.Millisecond)
 
+	// Listen
+	refresh := make(chan struct{})
+	listener, err := net.Listen("unix", socketPath)
+	if err != nil {
+		fmt.Println("Error creating listener:", err)
+		return
+	}
+	defer listener.Close()
+	fmt.Println("Server listening on", socketPath)
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				fmt.Println("Error accepting connection:", err)
+				continue
+			}
+
+			buffer := make([]byte, 1024)
+			n, err := conn.Read(buffer)
+			if err != nil {
+				conn.Close()
+				fmt.Println("Error reading:", err)
+				return
+			}
+
+			payload := string(buffer[:n])
+
+			if payload == "cmd:refresh" {
+				refresh <- struct{}{}
+			} else {
+				fmt.Println(payload)
+			}
+			conn.Close()
+		}
+	}()
+
 	// Start rendering
 	ticker := time.NewTicker(time.Second)
-	refresh := make(chan struct{})
 
 	for {
 		select {

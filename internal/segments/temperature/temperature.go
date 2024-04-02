@@ -24,7 +24,7 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 		return &t, err
 	}
 
-	t.Segment = segments.NewSegment(t.read, t.parse, conf.ParseInterval)
+	t.Segment = segments.NewSegment(t.read, t.parse, conf.RefreshInterval)
 
 	err = t.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
