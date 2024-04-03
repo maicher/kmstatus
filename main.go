@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/maicher/kmst/internal/config"
@@ -20,7 +22,6 @@ import (
 	"github.com/maicher/kmst/internal/segments/network"
 	"github.com/maicher/kmst/internal/segments/processes"
 	"github.com/maicher/kmst/internal/segments/temperature"
-	"github.com/maicher/kmst/internal/segments/text"
 	"github.com/maicher/kmst/internal/ui"
 )
 
@@ -46,7 +47,6 @@ func NewSegmentsBuilder() *SegmentsBuilder {
 			"bluetooth":   bluetooth.New,
 			"audio":       audio.New,
 			"processes":   processes.New,
-			"text":        text.New,
 		},
 	}
 }
@@ -61,7 +61,9 @@ func (b *SegmentsBuilder) New(c segments.Config) (segments.ParseReader, error) {
 }
 
 func main() {
+	// $USER $DISPLAY
 	socketPath := "/tmp/kmst.sock"
+	var text string
 
 	opts := options.Parse()
 
@@ -109,7 +111,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	os.Remove(socketPath)
 	c, err := config.New(opts.ConfigPath)
 	if err != nil {
 		fmt.Println(err)
@@ -122,6 +123,7 @@ func main() {
 		os.Exit(2)
 	}
 
+	// TODO: check here if socket file exist
 	// Initialize segments
 	buf := bytes.Buffer{}
 	segmentsBuilder := NewSegmentsBuilder()
@@ -149,14 +151,12 @@ func main() {
 		fmt.Println("Error creating listener:", err)
 		return
 	}
-	defer listener.Close()
-	fmt.Println("Server listening on", socketPath)
+
 	go func() {
 		for {
 			conn, err := listener.Accept()
 			if err != nil {
-				fmt.Println("Error accepting connection:", err)
-				continue
+				break
 			}
 
 			buffer := make([]byte, 1024)
@@ -172,30 +172,42 @@ func main() {
 			if payload == "cmd:refresh" {
 				refresh <- struct{}{}
 			} else {
-				fmt.Println(payload)
+				text = " " + payload + " "
+				refresh <- struct{}{}
 			}
 			conn.Close()
 		}
 	}()
 
+	terminate := make(chan os.Signal, 1)
+	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
+
 	// Start rendering
 	ticker := time.NewTicker(time.Second)
 
+mainLoop:
 	for {
 		select {
 		case <-ticker.C:
+			buf.WriteString(text)
+
 			for i := range segments {
 				segments[i].Read(&buf)
 			}
 			view.Flush(&buf)
 		case <-refresh:
+			buf.WriteString(text)
+
 			for i := range segments {
 				segments[i].Parse()
-			}
-			for i := range segments {
 				segments[i].Read(&buf)
 			}
 			view.Flush(&buf)
+		case <-terminate:
+			break mainLoop
 		}
 	}
+
+	listener.Close()
+	os.Remove(socketPath)
 }
