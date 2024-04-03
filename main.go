@@ -94,6 +94,23 @@ func main() {
 		os.Exit(0)
 	}
 
+	if opts.UnsetText {
+		conn, err := net.Dial("unix", socketPath)
+		if err != nil {
+			fmt.Println("Main process is not running: Error connecting to socket:", err)
+			os.Exit(1)
+		}
+
+		_, err = conn.Write([]byte("cmd:unsetText"))
+		if err != nil {
+			fmt.Println("Error sending message:", err)
+			return
+		}
+
+		conn.Close()
+		os.Exit(0)
+	}
+
 	if opts.Refresh {
 		conn, err := net.Dial("unix", socketPath)
 		if err != nil {
@@ -169,12 +186,14 @@ func main() {
 				return
 			}
 
-			payload := string(buffer[:n])
-
-			if payload == "cmd:refresh" {
+			switch cmd := string(buffer[:n]); cmd {
+			case "cmd:refresh":
 				refresh <- struct{}{}
-			} else {
-				text = " " + payload + " "
+			case "cmd:unsetText":
+				text = ""
+				refresh <- struct{}{}
+			default:
+				text = " " + cmd + " "
 				refresh <- struct{}{}
 			}
 			conn.Close()
