@@ -17,7 +17,7 @@ type Processes struct {
 	Parser *ProcessesParser
 }
 
-func New(conf segments.Config) (segments.ParseReader, error) {
+func New(conf segments.Config) (segments.RefreshReader, error) {
 	var p Processes
 	var err error
 	var r *strings.Reader
@@ -39,6 +39,10 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 	p.Segment = segments.NewSegment(p.read, p.parse, conf.RefreshInterval)
 
 	return &p, err
+}
+
+func (p *Processes) Refresh() {
+	p.Segment.Parse()
 }
 
 func (p *Processes) read(b *bytes.Buffer) (err error) {

@@ -15,7 +15,7 @@ type Temperature struct {
 	Parser *TemperatureParser
 }
 
-func New(conf segments.Config) (segments.ParseReader, error) {
+func New(conf segments.Config) (segments.RefreshReader, error) {
 	var t Temperature
 	var err error
 
@@ -36,6 +36,10 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 	}
 
 	return &t, nil
+}
+
+func (t *Temperature) Refresh() {
+	t.Segment.Parse()
 }
 
 func (t *Temperature) read(b *bytes.Buffer) error {

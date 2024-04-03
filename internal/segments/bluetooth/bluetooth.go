@@ -15,7 +15,7 @@ type Bluetooth struct {
 	Parser *BluetoothParser
 }
 
-func New(conf segments.Config) (segments.ParseReader, error) {
+func New(conf segments.Config) (segments.RefreshReader, error) {
 	var bt Bluetooth
 	var err error
 
@@ -32,6 +32,10 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 	}
 
 	return &bt, nil
+}
+
+func (bt *Bluetooth) Refresh() {
+	bt.Segment.Parse()
 }
 
 func (bt *Bluetooth) read(b *bytes.Buffer) error {

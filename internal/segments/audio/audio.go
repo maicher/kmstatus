@@ -15,7 +15,7 @@ type Audio struct {
 	Parser *AudioParser
 }
 
-func New(conf segments.Config) (segments.ParseReader, error) {
+func New(conf segments.Config) (segments.RefreshReader, error) {
 	var a Audio
 	var err error
 
@@ -32,6 +32,10 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 	}
 
 	return &a, nil
+}
+
+func (a *Audio) Refresh() {
+	a.Segment.Parse()
 }
 
 func (a *Audio) read(b *bytes.Buffer) error {

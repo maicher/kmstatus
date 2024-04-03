@@ -15,7 +15,7 @@ type Network struct {
 	Parser *NetworkParser
 }
 
-func New(conf segments.Config) (segments.ParseReader, error) {
+func New(conf segments.Config) (segments.RefreshReader, error) {
 	var n Network
 	var err error
 
@@ -34,6 +34,9 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 	n.Segment = segments.NewSegment(n.read, n.parse, conf.RefreshInterval)
 
 	return &n, nil
+}
+
+func (n *Network) Refresh() {
 }
 
 func (n *Network) read(b *bytes.Buffer) error {

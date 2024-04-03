@@ -17,7 +17,7 @@ type CPU struct {
 	FreqParser *FreqParser
 }
 
-func New(conf segments.Config) (segments.ParseReader, error) {
+func New(conf segments.Config) (segments.RefreshReader, error) {
 	var c CPU
 	var err error
 
@@ -39,6 +39,9 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 	}
 
 	return &c, nil
+}
+
+func (c *CPU) Refresh() {
 }
 
 func (c *CPU) read(b *bytes.Buffer) error {

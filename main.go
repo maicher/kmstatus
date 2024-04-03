@@ -30,7 +30,7 @@ var version string
 //go:embed doc.txt
 var doc string
 
-type NewSegmentFunc func(segments.Config) (segments.ParseReader, error)
+type NewSegmentFunc func(segments.Config) (segments.RefreshReader, error)
 
 type SegmentsBuilder struct {
 	builders map[string]NewSegmentFunc
@@ -51,7 +51,7 @@ func NewSegmentsBuilder() *SegmentsBuilder {
 	}
 }
 
-func (b *SegmentsBuilder) New(c segments.Config) (segments.ParseReader, error) {
+func (b *SegmentsBuilder) New(c segments.Config) (segments.RefreshReader, error) {
 	newParserFunc, ok := b.builders[c.ParserName]
 	if !ok {
 		return nil, errors.New("Invalid parser name: " + c.ParserName)
@@ -127,8 +127,8 @@ func main() {
 	// Initialize segments
 	buf := bytes.Buffer{}
 	segmentsBuilder := NewSegmentsBuilder()
-	var segment segments.ParseReader
-	var segments []segments.ParseReader
+	var segment segments.RefreshReader
+	var segments []segments.RefreshReader
 
 	for _, p := range c.Segments {
 		segment, err = segmentsBuilder.New(p)
@@ -151,6 +151,8 @@ func main() {
 		fmt.Println("Error creating listener:", err)
 		return
 	}
+	defer os.Remove(socketPath)
+	defer listener.Close()
 
 	go func() {
 		for {
@@ -199,7 +201,7 @@ mainLoop:
 			buf.WriteString(text)
 
 			for i := range segments {
-				segments[i].Parse()
+				segments[i].Refresh()
 				segments[i].Read(&buf)
 			}
 			view.Flush(&buf)
@@ -207,7 +209,4 @@ mainLoop:
 			break mainLoop
 		}
 	}
-
-	listener.Close()
-	os.Remove(socketPath)
 }

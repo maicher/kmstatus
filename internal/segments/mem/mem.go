@@ -15,7 +15,7 @@ type Mem struct {
 	Parser *MemParser
 }
 
-func New(conf segments.Config) (segments.ParseReader, error) {
+func New(conf segments.Config) (segments.RefreshReader, error) {
 	var m Mem
 	var err error
 
@@ -32,6 +32,10 @@ func New(conf segments.Config) (segments.ParseReader, error) {
 	}
 
 	return &m, nil
+}
+
+func (m *Mem) Refresh() {
+	m.Segment.Parse()
 }
 
 func (m *Mem) read(b *bytes.Buffer) error {
