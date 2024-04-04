@@ -14,7 +14,7 @@ SYNOPSIS
 DESCRIPTION
   Once started, kmst will print output every n seconds,
   where n is the lowest +refreshinterval+ from parser options (default: 1s).
-  To trigger an additional refresh run:
+  To trigger an additional refresh run a control command:
     kmst -r
  (communicates with the main process via sockets.)
 
@@ -27,9 +27,11 @@ OPTIONS
                          (to use this option kmstatus needs to be build with -tag X)
   --doc                  print documentation
   --version,        -v   print version
-  --text TEXT,      -t   set text
-  --text-unset,     -u   unset text
-  --refresh,        -r   refresh now
+  --socketpath,     -s   a custom path to a socket file
+                         (default: /tmp/kmst.sock)
+  --text TEXT,      -t   set text control command
+  --text-unset,     -u   unset text control command
+  --refresh,        -r   refresh now control command
 
 CONFIG
   See the below link for example config:
@@ -41,9 +43,12 @@ type Options struct {
 	Doc        bool
 	Version    bool
 	XWindow    bool
+	SocketPath string
 	Text       string
 	UnsetText  bool
 	Refresh    bool
+
+	ControlCmd string
 }
 
 func Parse() Options {
@@ -60,6 +65,10 @@ func Parse() Options {
 	flag.BoolVar(&opts.XWindow, "xwindow", false, "")
 	flag.BoolVar(&opts.XWindow, "x", false, "")
 
+	// todo change default to: /tmp/kmst.$USER.$DISPLAY.sock
+	flag.StringVar(&opts.SocketPath, "socketpath", "/tmp/kmst.sock", "")
+	flag.StringVar(&opts.SocketPath, "s", "/tmp/kmst.sock", "")
+
 	flag.StringVar(&opts.Text, "text", "", "")
 	flag.StringVar(&opts.Text, "t", "", "")
 
@@ -73,5 +82,23 @@ func Parse() Options {
 	flag.Usage = func() { fmt.Fprintf(f, help) }
 	flag.Parse()
 
+	opts.ControlCmd = opts.buildControlCmd()
+
 	return opts
+}
+
+func (opts Options) buildControlCmd() string {
+	if opts.Text != "" {
+		return opts.Text
+	}
+
+	if opts.Refresh {
+		return "cmd:refresh"
+	}
+
+	if opts.UnsetText {
+		return "cmd:unsetText"
+	}
+
+	return ""
 }

@@ -12,10 +12,17 @@ Information is split into segments, each representing a hardware or a software c
 * CPU average load and frequency
 * Temperature
 
+The order of segments as well as the templates are customizable via toml config file.
+
 Each segment has a separate parser to get data from system files or shell programs.
-Data parsing is performed every given time period (configurable by the `refreshinterval` option).
-Parsing can be additionally performed in reaction to system signal (configurable by the `parseonsig` option).
-The order of segments as well as the templates are customizable.
+Once `kmst` has started it parses data every given time interval (configurable by the `refreshinterval` option)
+and prints output periodically.
+
+The process can be additionally controlled by following commands:
+
+    kmst --refreh
+    kmst --text TEXT
+    kmst --text-unset
 
 ## Installation
 
