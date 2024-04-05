@@ -6,18 +6,19 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/common"
+	"github.com/maicher/kmst/internal/types"
 )
 
 type Processes struct {
-	segments.Segment
-	segments.Template
+	common.PeriodicParser
+	common.Template
 
 	Data   []Data
 	Parser *ProcessesParser
 }
 
-func New(conf segments.Config) (segments.RefreshReader, error) {
+func New(conf types.Config) (types.Segment, error) {
 	var p Processes
 	var err error
 	var r *strings.Reader
@@ -36,13 +37,13 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 		p.Data = append(p.Data, d)
 	}
 
-	p.Segment = segments.NewSegment(p.read, p.parse, conf.RefreshInterval)
+	p.PeriodicParser = common.NewPeriodicParser(p.read, p.parse, conf.RefreshInterval)
 
 	return &p, err
 }
 
 func (p *Processes) Refresh() {
-	p.Segment.Parse()
+	p.PeriodicParser.Parse()
 }
 
 func (p *Processes) read(b *bytes.Buffer) (err error) {

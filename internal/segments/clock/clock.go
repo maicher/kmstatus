@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/common"
+	"github.com/maicher/kmst/internal/types"
 )
 
 type Clock struct {
-	segments.Template
+	common.Template
 }
 
-func New(conf segments.Config) (segments.RefreshReader, error) {
+func New(conf types.Config) (types.Segment, error) {
 	var c Clock
 	var err error
 

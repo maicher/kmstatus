@@ -1,4 +1,4 @@
-package segments
+package common
 
 import "text/template"
 

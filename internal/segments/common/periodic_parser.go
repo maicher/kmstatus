@@ -1,4 +1,4 @@
-package segments
+package common
 
 import (
 	"bytes"
@@ -12,12 +12,12 @@ type parseMsg struct{}
 type handleReadMsgFunc func(*bytes.Buffer) error
 type handleParseMsgFunc func() error
 
-type Segment struct {
+type PeriodicParser struct {
 	msgQueue chan any
 	sync     chan any
 }
 
-func NewSegment(r handleReadMsgFunc, p handleParseMsgFunc, refreshInterval time.Duration) (s Segment) {
+func NewPeriodicParser(r handleReadMsgFunc, p handleParseMsgFunc, refreshInterval time.Duration) (s PeriodicParser) {
 	s.msgQueue = make(chan any)
 	s.sync = make(chan any)
 
@@ -31,7 +31,7 @@ func NewSegment(r handleReadMsgFunc, p handleParseMsgFunc, refreshInterval time.
 	return s
 }
 
-func (s Segment) Loop(r handleReadMsgFunc, p handleParseMsgFunc) {
+func (s PeriodicParser) Loop(r handleReadMsgFunc, p handleParseMsgFunc) {
 	var err error
 
 	for msg := range s.msgQueue {
@@ -52,17 +52,17 @@ func (s Segment) Loop(r handleReadMsgFunc, p handleParseMsgFunc) {
 	}
 }
 
-func (s *Segment) Read(b *bytes.Buffer) {
+func (s *PeriodicParser) Read(b *bytes.Buffer) {
 	s.msgQueue <- readMsg{Buffer: b}
 	<-s.sync
 }
 
-func (s *Segment) Parse() {
+func (s *PeriodicParser) Parse() {
 	s.msgQueue <- parseMsg{}
 	<-s.sync
 }
 
-func (s *Segment) onTick(interval time.Duration, f func()) {
+func (s *PeriodicParser) onTick(interval time.Duration, f func()) {
 	f()
 
 	ticker := time.NewTicker(interval)

@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/common"
+	"github.com/maicher/kmst/internal/types"
 )
 
 type Bluetooth struct {
-	segments.Segment
-	segments.Template
+	common.PeriodicParser
+	common.Template
 
 	Data   Data
 	Parser *BluetoothParser
 }
 
-func New(conf segments.Config) (segments.RefreshReader, error) {
+func New(conf types.Config) (types.Segment, error) {
 	var bt Bluetooth
 	var err error
 
@@ -24,7 +25,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 		return &bt, err
 	}
 
-	bt.Segment = segments.NewSegment(bt.read, bt.parse, conf.RefreshInterval)
+	bt.PeriodicParser = common.NewPeriodicParser(bt.read, bt.parse, conf.RefreshInterval)
 
 	err = bt.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
@@ -35,7 +36,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 }
 
 func (bt *Bluetooth) Refresh() {
-	bt.Segment.Parse()
+	bt.PeriodicParser.Parse()
 }
 
 func (bt *Bluetooth) read(b *bytes.Buffer) error {

@@ -8,7 +8,7 @@ import (
 	_ "embed"
 
 	"github.com/BurntSushi/toml"
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/types"
 )
 
 //go:embed kmstrc.example.toml
@@ -16,7 +16,7 @@ var kmstrcExample string
 
 type Config struct {
 	Timefmt  string
-	Segments []segments.Config `toml:"segment"`
+	Segments []types.Config `toml:"segment"`
 }
 
 func New(path string) (Config, error) {

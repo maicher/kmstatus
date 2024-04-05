@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/common"
+	"github.com/maicher/kmst/internal/types"
 )
 
 type Network struct {
-	segments.Segment
-	segments.Template
+	common.PeriodicParser
+	common.Template
 
 	Data   []Data
 	Parser *NetworkParser
 }
 
-func New(conf segments.Config) (segments.RefreshReader, error) {
+func New(conf types.Config) (types.Segment, error) {
 	var n Network
 	var err error
 
@@ -31,7 +32,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 		return &n, fmt.Errorf("Unable to parse Network template: %s", err)
 	}
 
-	n.Segment = segments.NewSegment(n.read, n.parse, conf.RefreshInterval)
+	n.PeriodicParser = common.NewPeriodicParser(n.read, n.parse, conf.RefreshInterval)
 
 	return &n, nil
 }

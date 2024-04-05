@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/common"
+	"github.com/maicher/kmst/internal/types"
 )
 
 type Audio struct {
-	segments.Segment
-	segments.Template
+	common.PeriodicParser
+	common.Template
 
 	Data   Data
 	Parser *AudioParser
 }
 
-func New(conf segments.Config) (segments.RefreshReader, error) {
+func New(conf types.Config) (types.Segment, error) {
 	var a Audio
 	var err error
 
@@ -24,7 +25,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 		return &a, err
 	}
 
-	a.Segment = segments.NewSegment(a.read, a.parse, conf.RefreshInterval)
+	a.PeriodicParser = common.NewPeriodicParser(a.read, a.parse, conf.RefreshInterval)
 
 	err = a.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
@@ -35,7 +36,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 }
 
 func (a *Audio) Refresh() {
-	a.Segment.Parse()
+	a.PeriodicParser.Parse()
 }
 
 func (a *Audio) read(b *bytes.Buffer) error {

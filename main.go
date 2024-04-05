@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	_ "embed"
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -14,14 +13,7 @@ import (
 	"github.com/maicher/kmst/internal/ipc"
 	"github.com/maicher/kmst/internal/options"
 	"github.com/maicher/kmst/internal/segments"
-	"github.com/maicher/kmst/internal/segments/audio"
-	"github.com/maicher/kmst/internal/segments/bluetooth"
-	"github.com/maicher/kmst/internal/segments/clock"
-	"github.com/maicher/kmst/internal/segments/cpu"
-	"github.com/maicher/kmst/internal/segments/mem"
-	"github.com/maicher/kmst/internal/segments/network"
-	"github.com/maicher/kmst/internal/segments/processes"
-	"github.com/maicher/kmst/internal/segments/temperature"
+	"github.com/maicher/kmst/internal/types"
 	"github.com/maicher/kmst/internal/ui"
 )
 
@@ -29,36 +21,6 @@ var version string
 
 //go:embed doc.txt
 var doc string
-
-type NewSegmentFunc func(segments.Config) (segments.RefreshReader, error)
-
-type SegmentsBuilder struct {
-	builders map[string]NewSegmentFunc
-}
-
-func NewSegmentsBuilder() *SegmentsBuilder {
-	return &SegmentsBuilder{
-		builders: map[string]NewSegmentFunc{
-			"cpu":         cpu.New,
-			"temperature": temperature.New,
-			"mem":         mem.New,
-			"network":     network.New,
-			"clock":       clock.New,
-			"bluetooth":   bluetooth.New,
-			"audio":       audio.New,
-			"processes":   processes.New,
-		},
-	}
-}
-
-func (b *SegmentsBuilder) New(c segments.Config) (segments.RefreshReader, error) {
-	newParserFunc, ok := b.builders[c.ParserName]
-	if !ok {
-		return nil, errors.New("Invalid parser name: " + c.ParserName)
-	}
-
-	return newParserFunc(c)
-}
 
 func main() {
 	var text string
@@ -99,18 +61,18 @@ func main() {
 	}
 
 	// Initialize segments
-	segmentsBuilder := NewSegmentsBuilder()
-	var segment segments.RefreshReader
-	var segments []segments.RefreshReader
+	var segment types.Segment
+	var s []types.Segment
+	builder := segments.NewBuilder()
 
 	for _, p := range c.Segments {
-		segment, err = segmentsBuilder.New(p)
+		segment, err = builder.Build(p)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(4)
 		}
 
-		segments = append(segments, segment)
+		s = append(s, segment)
 	}
 
 	// Initialize view and write start message.
@@ -121,9 +83,24 @@ func main() {
 	}
 
 	buf := bytes.Buffer{}
-	buf.WriteString("Starting...")
+	buf.WriteString(" | ")
 	view.Flush(&buf)
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
+	buf.WriteString(" / ")
+	view.Flush(&buf)
+	time.Sleep(200 * time.Millisecond)
+	buf.WriteString(" - ")
+	view.Flush(&buf)
+	time.Sleep(200 * time.Millisecond)
+	buf.WriteString(" \\ ")
+	view.Flush(&buf)
+	time.Sleep(200 * time.Millisecond)
+	buf.WriteString(" | ")
+	view.Flush(&buf)
+	time.Sleep(200 * time.Millisecond)
+	buf.WriteString(" / ")
+	view.Flush(&buf)
+	time.Sleep(150 * time.Millisecond)
 
 	// Listen
 	// check if socket file already exist and display error
@@ -155,6 +132,7 @@ func main() {
 
 	ticker := time.NewTicker(time.Second)
 	go func() {
+		render <- struct{}{}
 		for range ticker.C {
 			render <- struct{}{}
 		}
@@ -166,14 +144,14 @@ mainLoop:
 		case <-render:
 			buf.WriteString(text)
 
-			for i := range segments {
-				segments[i].Read(&buf)
+			for i := range s {
+				s[i].Read(&buf)
 			}
 
 			view.Flush(&buf)
 		case <-refresh:
-			for i := range segments {
-				segments[i].Refresh()
+			for i := range s {
+				s[i].Refresh()
 			}
 		case <-terminate:
 			break mainLoop

@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/common"
+	"github.com/maicher/kmst/internal/types"
 )
 
 type Temperature struct {
-	segments.Segment
-	segments.Template
+	common.PeriodicParser
+	common.Template
 
 	Data   []Data
 	Parser *TemperatureParser
 }
 
-func New(conf segments.Config) (segments.RefreshReader, error) {
+func New(conf types.Config) (types.Segment, error) {
 	var t Temperature
 	var err error
 
@@ -24,7 +25,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 		return &t, err
 	}
 
-	t.Segment = segments.NewSegment(t.read, t.parse, conf.RefreshInterval)
+	t.PeriodicParser = common.NewPeriodicParser(t.read, t.parse, conf.RefreshInterval)
 
 	err = t.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
@@ -39,7 +40,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 }
 
 func (t *Temperature) Refresh() {
-	t.Segment.Parse()
+	t.PeriodicParser.Parse()
 }
 
 func (t *Temperature) read(b *bytes.Buffer) error {

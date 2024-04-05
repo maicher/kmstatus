@@ -1,9 +1,15 @@
-package segments
+package types
 
 import (
+	"bytes"
 	"strings"
 	"time"
 )
+
+type Segment interface {
+	Refresh()
+	Read(*bytes.Buffer)
+}
 
 type Config struct {
 	ParserName      string

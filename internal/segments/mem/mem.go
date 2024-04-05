@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmst/internal/segments/common"
+	"github.com/maicher/kmst/internal/types"
 )
 
 type Mem struct {
-	segments.Segment
-	segments.Template
+	common.PeriodicParser
+	common.Template
 
 	Data   Data
 	Parser *MemParser
 }
 
-func New(conf segments.Config) (segments.RefreshReader, error) {
+func New(conf types.Config) (types.Segment, error) {
 	var m Mem
 	var err error
 
@@ -24,7 +25,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 		return &m, err
 	}
 
-	m.Segment = segments.NewSegment(m.read, m.parse, conf.RefreshInterval)
+	m.PeriodicParser = common.NewPeriodicParser(m.read, m.parse, conf.RefreshInterval)
 
 	err = m.NewTemplate(conf.StrippedTemplate(), helpers)
 	if err != nil {
@@ -35,7 +36,7 @@ func New(conf segments.Config) (segments.RefreshReader, error) {
 }
 
 func (m *Mem) Refresh() {
-	m.Segment.Parse()
+	m.PeriodicParser.Parse()
 }
 
 func (m *Mem) read(b *bytes.Buffer) error {
