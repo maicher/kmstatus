@@ -13,13 +13,13 @@ type Clock struct {
 	common.Template
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var c Clock
 	var err error
 
-	err = c.NewTemplate(conf.StrippedTemplate(), helpers)
+	err = c.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &c, fmt.Errorf("Unable to parse CPU template: %s", err)
+		return &c, fmt.Errorf("Unable to parse Clock template: %s", err)
 	}
 
 	return &c, nil

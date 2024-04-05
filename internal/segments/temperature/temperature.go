@@ -3,6 +3,7 @@ package temperature
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/common"
 	"github.com/maicher/kmst/internal/types"
@@ -16,7 +17,7 @@ type Temperature struct {
 	Parser *TemperatureParser
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var t Temperature
 	var err error
 
@@ -25,9 +26,9 @@ func New(conf types.Config) (types.Segment, error) {
 		return &t, err
 	}
 
-	t.PeriodicParser = common.NewPeriodicParser(t.read, t.parse, conf.RefreshInterval)
+	t.PeriodicParser = common.NewPeriodicParser(t.read, t.parse, refreshInterval)
 
-	err = t.NewTemplate(conf.StrippedTemplate(), helpers)
+	err = t.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &t, fmt.Errorf("Unable to parse Temperature template: %s", err)
 	}

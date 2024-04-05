@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/common"
 	"github.com/maicher/kmst/internal/types"
@@ -18,7 +19,7 @@ type Processes struct {
 	Parser *ProcessesParser
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var p Processes
 	var err error
 	var r *strings.Reader
@@ -29,7 +30,7 @@ func New(conf types.Config) (types.Segment, error) {
 		return &p, err
 	}
 
-	s := bufio.NewScanner(strings.NewReader(conf.Template))
+	s := bufio.NewScanner(strings.NewReader(tmpl))
 	s.Split(bufio.ScanLines)
 	for s.Scan() {
 		r = strings.NewReader(s.Text())
@@ -37,7 +38,7 @@ func New(conf types.Config) (types.Segment, error) {
 		p.Data = append(p.Data, d)
 	}
 
-	p.PeriodicParser = common.NewPeriodicParser(p.read, p.parse, conf.RefreshInterval)
+	p.PeriodicParser = common.NewPeriodicParser(p.read, p.parse, refreshInterval)
 
 	return &p, err
 }

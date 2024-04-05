@@ -3,6 +3,7 @@ package network
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/common"
 	"github.com/maicher/kmst/internal/types"
@@ -16,7 +17,7 @@ type Network struct {
 	Parser *NetworkParser
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var n Network
 	var err error
 
@@ -27,12 +28,12 @@ func New(conf types.Config) (types.Segment, error) {
 		return &n, err
 	}
 
-	err = n.NewTemplate(conf.StrippedTemplate(), helpers)
+	err = n.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &n, fmt.Errorf("Unable to parse Network template: %s", err)
 	}
 
-	n.PeriodicParser = common.NewPeriodicParser(n.read, n.parse, conf.RefreshInterval)
+	n.PeriodicParser = common.NewPeriodicParser(n.read, n.parse, refreshInterval)
 
 	return &n, nil
 }

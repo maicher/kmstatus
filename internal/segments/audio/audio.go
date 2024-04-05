@@ -3,6 +3,7 @@ package audio
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/common"
 	"github.com/maicher/kmst/internal/types"
@@ -16,7 +17,7 @@ type Audio struct {
 	Parser *AudioParser
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var a Audio
 	var err error
 
@@ -25,9 +26,9 @@ func New(conf types.Config) (types.Segment, error) {
 		return &a, err
 	}
 
-	a.PeriodicParser = common.NewPeriodicParser(a.read, a.parse, conf.RefreshInterval)
+	a.PeriodicParser = common.NewPeriodicParser(a.read, a.parse, refreshInterval)
 
-	err = a.NewTemplate(conf.StrippedTemplate(), helpers)
+	err = a.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &a, fmt.Errorf("Unable to parse Audio template: %s", err)
 	}

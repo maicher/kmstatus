@@ -2,6 +2,7 @@ package segments
 
 import (
 	"errors"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/audio"
 	"github.com/maicher/kmst/internal/segments/bluetooth"
@@ -14,14 +15,14 @@ import (
 	"github.com/maicher/kmst/internal/types"
 )
 
-type newSegmentFunc func(types.Config) (types.Segment, error)
+type newSegmentFunc func(string, time.Duration) (types.Segment, error)
 
-type Builder struct {
+type builder struct {
 	builders map[string]newSegmentFunc
 }
 
-func NewBuilder() *Builder {
-	return &Builder{
+func newBuilder() *builder {
+	return &builder{
 		builders: map[string]newSegmentFunc{
 			"cpu":         cpu.New,
 			"temperature": temperature.New,
@@ -35,11 +36,11 @@ func NewBuilder() *Builder {
 	}
 }
 
-func (b *Builder) Build(c types.Config) (types.Segment, error) {
+func (b *builder) Build(c Config) (types.Segment, error) {
 	newParserFunc, ok := b.builders[c.ParserName]
 	if !ok {
 		return nil, errors.New("Invalid parser name: " + c.ParserName)
 	}
 
-	return newParserFunc(c)
+	return newParserFunc(c.Template, c.RefreshInterval)
 }

@@ -3,6 +3,7 @@ package mem
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/common"
 	"github.com/maicher/kmst/internal/types"
@@ -16,7 +17,7 @@ type Mem struct {
 	Parser *MemParser
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var m Mem
 	var err error
 
@@ -25,9 +26,9 @@ func New(conf types.Config) (types.Segment, error) {
 		return &m, err
 	}
 
-	m.PeriodicParser = common.NewPeriodicParser(m.read, m.parse, conf.RefreshInterval)
+	m.PeriodicParser = common.NewPeriodicParser(m.read, m.parse, refreshInterval)
 
-	err = m.NewTemplate(conf.StrippedTemplate(), helpers)
+	err = m.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &m, fmt.Errorf("Unable to parse Mem template: %s", err)
 	}

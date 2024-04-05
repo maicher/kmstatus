@@ -3,6 +3,7 @@ package cpu
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/common"
 	"github.com/maicher/kmst/internal/types"
@@ -18,7 +19,7 @@ type CPU struct {
 	FreqParser *FreqParser
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var c CPU
 	var err error
 
@@ -32,9 +33,9 @@ func New(conf types.Config) (types.Segment, error) {
 		return &c, err
 	}
 
-	c.PeriodicParser = common.NewPeriodicParser(c.read, c.parse, conf.RefreshInterval)
+	c.PeriodicParser = common.NewPeriodicParser(c.read, c.parse, refreshInterval)
 
-	err = c.NewTemplate(conf.StrippedTemplate(), helpers)
+	err = c.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &c, fmt.Errorf("Unable to parse CPU template: %s", err)
 	}

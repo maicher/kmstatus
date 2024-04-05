@@ -60,9 +60,9 @@ func main() {
 	}
 
 	// Initialize segments
-	segmentsCollection := segments.NewCollection()
+	segmentsCollection := segments.New()
 	for _, p := range c.Segments {
-		err = segmentsCollection.Build(p)
+		err = segmentsCollection.AppendNewSegment(p)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(4)
@@ -77,24 +77,9 @@ func main() {
 	}
 
 	buf := bytes.Buffer{}
-	buf.WriteString(" | ")
+	buf.WriteString("Starting...")
 	view.Flush(&buf)
-	time.Sleep(100 * time.Millisecond)
-	buf.WriteString(" / ")
-	view.Flush(&buf)
-	time.Sleep(200 * time.Millisecond)
-	buf.WriteString(" - ")
-	view.Flush(&buf)
-	time.Sleep(200 * time.Millisecond)
-	buf.WriteString(" \\ ")
-	view.Flush(&buf)
-	time.Sleep(200 * time.Millisecond)
-	buf.WriteString(" | ")
-	view.Flush(&buf)
-	time.Sleep(200 * time.Millisecond)
-	buf.WriteString(" / ")
-	view.Flush(&buf)
-	time.Sleep(150 * time.Millisecond)
+	time.Sleep(1100 * time.Millisecond)
 
 	// Listen
 	// check if socket file already exist and display error

@@ -3,6 +3,7 @@ package bluetooth
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/maicher/kmst/internal/segments/common"
 	"github.com/maicher/kmst/internal/types"
@@ -16,7 +17,7 @@ type Bluetooth struct {
 	Parser *BluetoothParser
 }
 
-func New(conf types.Config) (types.Segment, error) {
+func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var bt Bluetooth
 	var err error
 
@@ -25,9 +26,9 @@ func New(conf types.Config) (types.Segment, error) {
 		return &bt, err
 	}
 
-	bt.PeriodicParser = common.NewPeriodicParser(bt.read, bt.parse, conf.RefreshInterval)
+	bt.PeriodicParser = common.NewPeriodicParser(bt.read, bt.parse, refreshInterval)
 
-	err = bt.NewTemplate(conf.StrippedTemplate(), helpers)
+	err = bt.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &bt, fmt.Errorf("Unable to parse Bluetooth template: %s", err)
 	}
