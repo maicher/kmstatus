@@ -13,7 +13,6 @@ import (
 	"github.com/maicher/kmst/internal/ipc"
 	"github.com/maicher/kmst/internal/options"
 	"github.com/maicher/kmst/internal/segments"
-	"github.com/maicher/kmst/internal/types"
 	"github.com/maicher/kmst/internal/ui"
 )
 
@@ -61,18 +60,13 @@ func main() {
 	}
 
 	// Initialize segments
-	var segment types.Segment
-	var s []types.Segment
-	builder := segments.NewBuilder()
-
+	segmentsCollection := segments.NewCollection()
 	for _, p := range c.Segments {
-		segment, err = builder.Build(p)
+		err = segmentsCollection.Build(p)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(4)
 		}
-
-		s = append(s, segment)
 	}
 
 	// Initialize view and write start message.
@@ -143,16 +137,10 @@ mainLoop:
 		select {
 		case <-render:
 			buf.WriteString(text)
-
-			for i := range s {
-				s[i].Read(&buf)
-			}
-
+			segmentsCollection.Read(&buf)
 			view.Flush(&buf)
 		case <-refresh:
-			for i := range s {
-				s[i].Refresh()
-			}
+			segmentsCollection.Refresh()
 		case <-terminate:
 			break mainLoop
 		}
