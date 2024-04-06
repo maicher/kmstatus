@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/maicher/kmst/internal/config"
-	"github.com/maicher/kmst/internal/ipc"
-	"github.com/maicher/kmst/internal/options"
-	"github.com/maicher/kmst/internal/segments"
-	"github.com/maicher/kmst/internal/ui"
+	"github.com/maicher/kmstatus/internal/config"
+	"github.com/maicher/kmstatus/internal/ipc"
+	"github.com/maicher/kmstatus/internal/options"
+	"github.com/maicher/kmstatus/internal/segments"
+	"github.com/maicher/kmstatus/internal/ui"
 )
 
 var version string
@@ -82,7 +82,7 @@ func main() {
 	time.Sleep(1100 * time.Millisecond)
 
 	// Listen
-	// check if socket file already exist and display error
+	// check if socket file already exists
 	refresh := make(chan struct{})
 	render := make(chan struct{})
 	go func() {

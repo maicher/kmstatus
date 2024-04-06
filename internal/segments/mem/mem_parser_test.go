@@ -3,7 +3,7 @@ package mem
 import (
 	"testing"
 
-	"github.com/maicher/kmst/internal/test"
+	"github.com/maicher/kmstatus/internal/test"
 )
 
 func Test_MemParser(t *testing.T) {

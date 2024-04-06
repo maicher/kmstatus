@@ -1,12 +1,10 @@
-# KMST
-
-`kmst` (statusbar) highly customizable statusbar.
+# kmstatus
 
 See [Documentation](doc.md) for more info.
 
 ## Overview
 
-`kmst` (statusbar) displays system information.
+`kmstatus` displays system information.
 Information is split into segments, each representing a hardware or a software component:
 
 * CPU average load and frequency
@@ -15,14 +13,14 @@ Information is split into segments, each representing a hardware or a software c
 The order of segments as well as the templates are customizable via toml config file.
 
 Each segment has a separate parser to get data from system files or shell programs.
-Once `kmst` has started it parses data every given time interval (configurable by the `refreshinterval` option)
+Once `kmstatus` has started it parses data every given time interval (configurable by the `refreshinterval` option)
 and prints output periodically.
 
 The process can be additionally controlled by following commands:
 
-    kmst --refreh
-    kmst --text TEXT
-    kmst --text-unset
+    kmstatus --refreh
+    kmstatus --text TEXT
+    kmstatus --text-unset
 
 ## Installation
 
@@ -34,8 +32,8 @@ or
 
 ## Run
 
-    $ kmst -x
+    $ kmstatus -x
 
 or
 
-    $ kmst
+    $ kmstatus

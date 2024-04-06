@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/maicher/kmst/internal/segments/common"
-	"github.com/maicher/kmst/internal/types"
+	"github.com/maicher/kmstatus/internal/segments/common"
+	"github.com/maicher/kmstatus/internal/types"
 )
 
 type Network struct {

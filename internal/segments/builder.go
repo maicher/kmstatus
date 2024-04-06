@@ -4,15 +4,15 @@ import (
 	"errors"
 	"time"
 
-	"github.com/maicher/kmst/internal/segments/audio"
-	"github.com/maicher/kmst/internal/segments/bluetooth"
-	"github.com/maicher/kmst/internal/segments/clock"
-	"github.com/maicher/kmst/internal/segments/cpu"
-	"github.com/maicher/kmst/internal/segments/mem"
-	"github.com/maicher/kmst/internal/segments/network"
-	"github.com/maicher/kmst/internal/segments/processes"
-	"github.com/maicher/kmst/internal/segments/temperature"
-	"github.com/maicher/kmst/internal/types"
+	"github.com/maicher/kmstatus/internal/segments/audio"
+	"github.com/maicher/kmstatus/internal/segments/bluetooth"
+	"github.com/maicher/kmstatus/internal/segments/clock"
+	"github.com/maicher/kmstatus/internal/segments/cpu"
+	"github.com/maicher/kmstatus/internal/segments/mem"
+	"github.com/maicher/kmstatus/internal/segments/network"
+	"github.com/maicher/kmstatus/internal/segments/processes"
+	"github.com/maicher/kmstatus/internal/segments/temperature"
+	"github.com/maicher/kmstatus/internal/types"
 )
 
 type newSegmentFunc func(string, time.Duration) (types.Segment, error)

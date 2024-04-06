@@ -8,11 +8,11 @@ import (
 	_ "embed"
 
 	"github.com/BurntSushi/toml"
-	"github.com/maicher/kmst/internal/segments"
+	"github.com/maicher/kmstatus/internal/segments"
 )
 
-//go:embed kmstrc.example.toml
-var kmstrcExample string
+//go:embed kmstatusrc.example.toml
+var kmstatusrcExample string
 
 type Config struct {
 	Segments []segments.Config `toml:"segment"`
@@ -24,7 +24,7 @@ func New(path string) (Config, error) {
 	}
 
 	if dir, ok := os.LookupEnv("XDG_CONFIG_HOME"); ok {
-		path = filepath.Join(dir, "kmst/kmstrc.toml")
+		path = filepath.Join(dir, "kmstatus/kmstatusrc.toml")
 
 		if fileExists(path) {
 			return parseConfig(path)
@@ -32,7 +32,7 @@ func New(path string) (Config, error) {
 	}
 
 	if dir, ok := os.LookupEnv("HOME"); ok {
-		path = filepath.Join(dir, ".config/kmst/kmstrc.toml")
+		path = filepath.Join(dir, ".config/kmstatus/kmstatusrc.toml")
 
 		if fileExists(path) {
 			return parseConfig(path)
@@ -46,7 +46,7 @@ func New(path string) (Config, error) {
 func parseDefaultConfig() (Config, error) {
 	var c Config
 
-	err := toml.Unmarshal([]byte(kmstrcExample), &c)
+	err := toml.Unmarshal([]byte(kmstatusrcExample), &c)
 	if err != nil {
 		return c, fmt.Errorf("Unable to parse default config file: %s", err)
 	}

@@ -1,4 +1,4 @@
-module github.com/maicher/kmst
+module github.com/maicher/kmstatus
 
 go 1.22.1
 

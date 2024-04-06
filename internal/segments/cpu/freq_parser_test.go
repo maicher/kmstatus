@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/maicher/kmst/internal/test"
+	"github.com/maicher/kmstatus/internal/test"
 )
 
 func Test_FreqParser_Parse_FileCanNotBeParsed(t *testing.T) {

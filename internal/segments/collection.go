@@ -3,7 +3,7 @@ package segments
 import (
 	"bytes"
 
-	"github.com/maicher/kmst/internal/types"
+	"github.com/maicher/kmstatus/internal/types"
 )
 
 type Collection struct {

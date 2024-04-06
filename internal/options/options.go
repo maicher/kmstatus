@@ -6,36 +6,36 @@ import (
 )
 
 var help = `NAME
-  kmst - km status bar
+  kmstatus - dynamic status bar
 
 SYNOPSIS
-  kmst [OPTION...]   // start printing status
+  kmstatus [OPTION...]   // start printing status
 
 DESCRIPTION
-  Once started, kmst will print output every n seconds,
+  Once started, kmstatus will print output every n seconds,
   where n is the lowest +refreshinterval+ from parser options (default: 1s).
   To trigger an additional refresh run a control command:
-    kmst -r
+    kmstatus -r
  (communicates with the main process via sockets.)
 
 OPTIONS
-  --config PATH,    -c   path to a kmstrc file
-                         if not set, kmst will try to look up following paths:
-                         $XDG_CONFIG_HOME/kmst/kmstrc.toml
-                         $HOME/.config/kmst/kmstrc.toml
+  --config PATH,    -c   path to a kmstatusrc file
+                         if not set, kmstatus will try to look up following paths:
+                         $XDG_CONFIG_HOME/kmstatus/kmstatusrc.toml
+                         $HOME/.config/kmstatus/kmstatusrc.toml
   --xwindow,        -x   print output to default's window WM_NAME (instead stdout)
-                         (to use this option kmstatus needs to be build with -tag X)
+                         (to use this option kmstatusatus needs to be build with -tag X)
   --doc                  print documentation
   --version,        -v   print version
   --socketpath,     -s   a custom path to a socket file
-                         (default: /tmp/kmst.sock)
+                         (default: /tmp/kmstatus.sock)
   --text TEXT,      -t   set text control command
   --text-unset,     -u   unset text control command
   --refresh,        -r   refresh now control command
 
 CONFIG
   See the below link for example config:
-    https://github.com/maicher/kmst/blob/master/internal/config/kmstrc.example.toml
+    https://github.com/maicher/kmstatus/blob/master/internal/config/kmstatusrc.example.toml
 `
 
 type Options struct {
@@ -65,9 +65,9 @@ func Parse() Options {
 	flag.BoolVar(&opts.XWindow, "xwindow", false, "")
 	flag.BoolVar(&opts.XWindow, "x", false, "")
 
-	// todo change default to: /tmp/kmst.$USER.$DISPLAY.sock
-	flag.StringVar(&opts.SocketPath, "socketpath", "/tmp/kmst.sock", "")
-	flag.StringVar(&opts.SocketPath, "s", "/tmp/kmst.sock", "")
+	// todo change default to: /tmp/kmstatus.$USER.$DISPLAY.sock
+	flag.StringVar(&opts.SocketPath, "socketpath", "/tmp/kmstatus.sock", "")
+	flag.StringVar(&opts.SocketPath, "s", "/tmp/kmstatus.sock", "")
 
 	flag.StringVar(&opts.Text, "text", "", "")
 	flag.StringVar(&opts.Text, "t", "", "")

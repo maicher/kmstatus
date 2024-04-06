@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/maicher/kmst/internal/test"
+	"github.com/maicher/kmstatus/internal/test"
 )
 
 func TestLoadParser_Parse_FileCanNotBeParsed(t *testing.T) {

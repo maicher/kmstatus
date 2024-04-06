@@ -3,7 +3,7 @@ package ui
 import (
 	"bytes"
 
-	"github.com/maicher/kmst/internal/ui/out"
+	"github.com/maicher/kmstatus/internal/ui/out"
 )
 
 type statusSetter interface {
