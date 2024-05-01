@@ -1,9 +1,4 @@
 [[segment]]
-parsername = "text"
-refreshinterval = "1s"
-template = "{{ . }}"
-
-[[segment]]
 parsername = "processes"
 refreshinterval = "1s"
 template = """
