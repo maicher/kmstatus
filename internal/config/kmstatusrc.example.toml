@@ -46,18 +46,15 @@ template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}% {
 [[segment]]
 parsername = "temperature"
 refreshinterval = "5s"
-template = """{{ if .Name | eq "k10temp" }}
- {{ .Value }}°
-{{ end }}"""
 
 # In Celsius:
-# template = " {{ .Name }}:{{ .Celsius }}°C"
+template = " {{ .Name }}:{{ .Celsius }}°C"
 
 # In Fahrenheit:
 # template = " {{ .Name }}:{{ .Fahrenheit }}°F"
 
 # Do not display all available temperatures, but a specific one:
-# template = """ {{ if .Name | eq "test" }}
+# template = """ {{ if .Name | eq "k10temp" }}
 # {{ .Value }}°
 # {{ end }}"""
 
@@ -69,7 +66,7 @@ template = """{{ if .Name | eq "k10temp" }}
 
 [[segment]]
 parsername = "mem"
-refreshinterval = "1s"
+refreshinterval = "5s"
 template = """
  {{ .Used | human 0 }}/{{ .Total | human 0 }}({{ .UsedPercentage | printf "%.1f" }}%)
 {{ if .SwapUsed | gt 0 }}
