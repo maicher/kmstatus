@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	_ "embed"
 
@@ -16,6 +17,20 @@ var kmstatusrcExample string
 
 type Config struct {
 	Segments []segments.Config `toml:"segment"`
+}
+
+func (c *Config) MinInterval() time.Duration {
+	interval := time.Minute
+
+	for _, v := range c.Segments {
+		if v.RefreshInterval > 0 {
+			if v.RefreshInterval < interval {
+				interval = v.RefreshInterval
+			}
+		}
+	}
+
+	return interval
 }
 
 func New(path string) (Config, error) {

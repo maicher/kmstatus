@@ -79,7 +79,7 @@ func main() {
 	buf := bytes.Buffer{}
 	buf.WriteString("Starting...")
 	view.Flush(&buf)
-	time.Sleep(1100 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 
 	// Listen
 	// check if socket file already exists
@@ -109,7 +109,7 @@ func main() {
 	terminate := make(chan os.Signal, 1)
 	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(c.MinInterval())
 	go func() {
 		render <- struct{}{}
 		for range ticker.C {
