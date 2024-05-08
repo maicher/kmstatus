@@ -13,15 +13,15 @@ type Bluetooth struct {
 	common.PeriodicParser
 	common.Template
 
-	Data   Data
-	Parser *BluetoothParser
+	data   data
+	parser *BluetoothParser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var bt Bluetooth
 	var err error
 
-	bt.Parser, err = NewBluetoothParser()
+	bt.parser, err = NewBluetoothParser()
 	if err != nil {
 		return &bt, err
 	}
@@ -41,9 +41,9 @@ func (bt *Bluetooth) Refresh() {
 }
 
 func (bt *Bluetooth) read(b *bytes.Buffer) error {
-	return bt.Tmpl.Execute(b, bt.Data)
+	return bt.Tmpl.Execute(b, bt.data)
 }
 
 func (bt *Bluetooth) parse() error {
-	return bt.Parser.Parse(&bt.Data)
+	return bt.parser.Parse(&bt.data)
 }

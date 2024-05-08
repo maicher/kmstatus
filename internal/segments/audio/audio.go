@@ -13,15 +13,15 @@ type Audio struct {
 	common.PeriodicParser
 	common.Template
 
-	Data   Data
-	Parser *AudioParser
+	data   data
+	parser *AudioParser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var a Audio
 	var err error
 
-	a.Parser, err = NewAudioParser()
+	a.parser, err = NewAudioParser()
 	if err != nil {
 		return &a, err
 	}
@@ -41,9 +41,9 @@ func (a *Audio) Refresh() {
 }
 
 func (a *Audio) read(b *bytes.Buffer) error {
-	return a.Tmpl.Execute(b, a.Data)
+	return a.Tmpl.Execute(b, a.data)
 }
 
 func (a *Audio) parse() error {
-	return a.Parser.Parse(&a.Data)
+	return a.parser.Parse(&a.data)
 }

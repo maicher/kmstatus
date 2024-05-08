@@ -17,7 +17,7 @@ func NewBluetoothParser() (*BluetoothParser, error) {
 	return &p, nil
 }
 
-func (p *BluetoothParser) Parse(data *Data) error {
+func (p *BluetoothParser) Parse(data *data) error {
 	err := exec.Command("systemctl", "is-active", "--quiet", "bluetooth").Run()
 	if err == nil {
 		data.IsServiceActive = true

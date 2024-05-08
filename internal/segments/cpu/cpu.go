@@ -13,22 +13,22 @@ type CPU struct {
 	common.PeriodicParser
 	common.Template
 
-	Data Data
+	data data
 
-	LoadParser *LoadParser
-	FreqParser *FreqParser
+	loadParser *LoadParser
+	freqParser *FreqParser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var c CPU
 	var err error
 
-	c.LoadParser, err = NewLoadParser()
+	c.loadParser, err = NewLoadParser()
 	if err != nil {
 		return &c, err
 	}
 
-	c.FreqParser, err = NewFreqParser()
+	c.freqParser, err = NewFreqParser()
 	if err != nil {
 		return &c, err
 	}
@@ -47,14 +47,14 @@ func (c *CPU) Refresh() {
 }
 
 func (c *CPU) read(b *bytes.Buffer) error {
-	return c.Tmpl.Execute(b, c.Data)
+	return c.Tmpl.Execute(b, c.data)
 }
 
 func (c *CPU) parse() error {
-	err := c.LoadParser.Parse(&c.Data.Load)
+	err := c.loadParser.Parse(&c.data.Load)
 	if err != nil {
 		return err
 	}
 
-	return c.FreqParser.Parse(&c.Data.Freq)
+	return c.freqParser.Parse(&c.data.Freq)
 }

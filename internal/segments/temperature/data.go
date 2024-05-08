@@ -2,15 +2,15 @@ package temperature
 
 import "math"
 
-type Data struct {
+type data struct {
 	Name  string
 	Value int
 }
 
-func (d Data) Celsius() int {
+func (d data) Celsius() int {
 	return d.Value
 }
 
-func (d Data) Fahrenheit() int {
+func (d data) Fahrenheit() int {
 	return int(math.Round((float64(d.Value) * 1.8) + 32))
 }

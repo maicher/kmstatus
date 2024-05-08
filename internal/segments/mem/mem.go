@@ -13,15 +13,15 @@ type Mem struct {
 	common.PeriodicParser
 	common.Template
 
-	Data   Data
-	Parser *MemParser
+	data   data
+	parser *MemParser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var m Mem
 	var err error
 
-	m.Parser, err = NewMemParser()
+	m.parser, err = NewMemParser()
 	if err != nil {
 		return &m, err
 	}
@@ -41,9 +41,9 @@ func (m *Mem) Refresh() {
 }
 
 func (m *Mem) read(b *bytes.Buffer) error {
-	return m.Tmpl.Execute(b, m.Data)
+	return m.Tmpl.Execute(b, m.data)
 }
 
 func (m *Mem) parse() error {
-	return m.Parser.Parse(&m.Data)
+	return m.parser.Parse(&m.data)
 }

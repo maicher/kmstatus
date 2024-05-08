@@ -1,6 +1,6 @@
 package audio
 
-type Data struct {
+type data struct {
 	InAvailable bool
 	InVolume    int
 	InMuted     bool

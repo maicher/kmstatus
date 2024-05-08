@@ -11,21 +11,21 @@ func Test_ProcessesParser(t *testing.T) {
 	if basePath == "" {
 		panic("BASE_PATH not set")
 	}
-	var data []Data
-	data = append(data, Data{icon: "F", phrase: "firefox"})
-	data = append(data, Data{icon: "X", phrase: "xxx"})
+	var d []data
+	d = append(d, data{icon: "F", phrase: "firefox"})
+	d = append(d, data{icon: "X", phrase: "xxx"})
 
 	parser := ProcessesParser{command: path.Join(basePath, "internal/test/ps_test")}
-	err := parser.Parse(data)
+	err := parser.Parse(d)
 	if err != nil {
 		t.Fatalf("Error: %s, want: nil", err)
 	}
 
-	if data[0].active != true {
+	if d[0].active != true {
 		t.Fatalf("firefox is not active, want active")
 	}
 
-	if data[1].active != false {
+	if d[1].active != false {
 		t.Fatalf("xxx is active, want not active")
 	}
 }

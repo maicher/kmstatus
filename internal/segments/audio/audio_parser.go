@@ -17,7 +17,7 @@ func NewAudioParser() (*AudioParser, error) {
 	return &p, nil
 }
 
-func (p *AudioParser) Parse(data *Data) error {
+func (p *AudioParser) Parse(data *data) error {
 	var buf bytes.Buffer
 	var r *strings.Reader
 

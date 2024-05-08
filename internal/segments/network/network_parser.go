@@ -12,7 +12,7 @@ import (
 const fileWithNetworkInfo = "/proc/net/dev"
 
 type NetworkParser struct {
-	dataBuf  map[string]Data
+	dataBuf  map[string]data
 	parsedAt time.Time
 	file     *os.File
 }
@@ -21,7 +21,7 @@ func NewNetworkParser() (*NetworkParser, error) {
 	var n NetworkParser
 	var err error
 
-	n.dataBuf = make(map[string]Data)
+	n.dataBuf = make(map[string]data)
 	n.file, err = os.Open(fileWithNetworkInfo)
 	if err != nil {
 		return &n, fmt.Errorf("Network parser: %s", err)
@@ -30,7 +30,7 @@ func NewNetworkParser() (*NetworkParser, error) {
 	return &n, nil
 }
 
-func (n *NetworkParser) Parse(data []Data) error {
+func (n *NetworkParser) Parse(data []data) error {
 	_, err := n.file.Seek(0, 0)
 	if err != nil {
 		return fmt.Errorf("Network parser: %s", err)
@@ -66,7 +66,7 @@ func (n *NetworkParser) Parse(data []Data) error {
 	return nil
 }
 
-func (n *NetworkParser) calculateSpeed(data []Data) {
+func (n *NetworkParser) calculateSpeed(data []data) {
 	mul := time.Since(n.parsedAt)
 
 	for index, i := range data {

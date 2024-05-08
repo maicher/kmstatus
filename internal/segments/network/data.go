@@ -1,6 +1,6 @@
 package network
 
-type Data struct {
+type data struct {
 	Name string
 
 	// Total received data in bytes

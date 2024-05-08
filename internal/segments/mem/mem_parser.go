@@ -13,7 +13,7 @@ type MemParser struct {
 
 var meminfoFilePath = "/proc/meminfo"
 
-func (p *MemParser) Parse(d *Data) error {
+func (p *MemParser) Parse(d *data) error {
 	var free, buffers, cached, swapFree int
 
 	p.scanByLines(func(line string) {

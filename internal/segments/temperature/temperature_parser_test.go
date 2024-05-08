@@ -7,7 +7,7 @@ import (
 )
 
 func Test_TempParser_Parse_FileCanNotBeParsed(t *testing.T) {
-	data := make([]Data, 1)
+	data := make([]data, 1)
 	f := test.NewTempFile()
 	test.WriteLine(f, "bla bla")
 
@@ -21,7 +21,7 @@ func Test_TempParser_Parse_FileCanNotBeParsed(t *testing.T) {
 }
 
 func Test_TempParser_Parse_FileCanBeParsed(t *testing.T) {
-	data := make([]Data, 1)
+	data := make([]data, 1)
 	f := test.NewTempFile()
 	test.WriteLine(f, "30000")
 

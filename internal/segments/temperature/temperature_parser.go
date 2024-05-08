@@ -35,7 +35,7 @@ func NewTemperatureParser() (*TemperatureParser, error) {
 	return &p, fmt.Errorf("Temp parser: no files matching pattern %s nor %s", globIntel, globAMD)
 }
 
-func (p *TemperatureParser) Parse(data []Data) error {
+func (p *TemperatureParser) Parse(data []data) error {
 	var val int
 
 	for i, sensor := range p.sensors {

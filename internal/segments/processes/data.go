@@ -1,6 +1,6 @@
 package processes
 
-type Data struct {
+type data struct {
 	icon   string
 	phrase string
 	active bool

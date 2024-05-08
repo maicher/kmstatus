@@ -65,26 +65,26 @@ DirectMap4k:      285332 kB
 DirectMap2M:    10096640 kB
 DirectMap1G:    25165824 kB`)
 
-	data := Data{}
+	d := data{}
 	parser := MemParser{file: f}
-	err := parser.Parse(&data)
+	err := parser.Parse(&d)
 
 	if err != nil {
 		t.Fatalf("Error: %s, want: nil", err)
 	}
 
-	if data.Total != 32814068 {
-		t.Fatalf("MemTotal: %d, want: %d", data.Total, 32814068)
+	if d.Total != 32814068 {
+		t.Fatalf("MemTotal: %d, want: %d", d.Total, 32814068)
 	}
 
-	if data.Used != 26571588 {
-		t.Fatalf("MemUsed: %d, want: %d", data.Used, 26571588)
+	if d.Used != 26571588 {
+		t.Fatalf("MemUsed: %d, want: %d", d.Used, 26571588)
 	}
-	if data.SwapTotal != 50331644 {
-		t.Fatalf("SwapTotal: %d, want: %d", data.SwapTotal, 50331644)
+	if d.SwapTotal != 50331644 {
+		t.Fatalf("SwapTotal: %d, want: %d", d.SwapTotal, 50331644)
 	}
 
-	if data.SwapUsed != 3073024 {
-		t.Fatalf("SwapUsed: %d, want: %d", data.SwapUsed, 3073024)
+	if d.SwapUsed != 3073024 {
+		t.Fatalf("SwapUsed: %d, want: %d", d.SwapUsed, 3073024)
 	}
 }

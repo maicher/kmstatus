@@ -18,7 +18,7 @@ func NewProcessesParser() (*ProcessesParser, error) {
 	return &p, nil
 }
 
-func (p *ProcessesParser) Parse(data []Data) error {
+func (p *ProcessesParser) Parse(data []data) error {
 	var buf bytes.Buffer
 
 	cmd := exec.Command(p.command, "-e", "-o", "comm=")

@@ -15,17 +15,17 @@ type Processes struct {
 	common.PeriodicParser
 	common.Template
 
-	Data   []Data
-	Parser *ProcessesParser
+	data   []data
+	parser *ProcessesParser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var p Processes
 	var err error
 	var r *strings.Reader
-	var d Data
+	var d data
 
-	p.Parser, err = NewProcessesParser()
+	p.parser, err = NewProcessesParser()
 	if err != nil {
 		return &p, err
 	}
@@ -35,7 +35,7 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	for s.Scan() {
 		r = strings.NewReader(s.Text())
 		fmt.Fscanf(r, "%s %s", &d.icon, &d.phrase)
-		p.Data = append(p.Data, d)
+		p.data = append(p.data, d)
 	}
 
 	p.PeriodicParser = common.NewPeriodicParser(p.read, p.parse, refreshInterval)
@@ -48,7 +48,7 @@ func (p *Processes) Refresh() {
 }
 
 func (p *Processes) read(b *bytes.Buffer) (err error) {
-	for _, d := range p.Data {
+	for _, d := range p.data {
 		if d.active {
 			_, err = b.WriteString(d.icon)
 			if err != nil {
@@ -61,5 +61,5 @@ func (p *Processes) read(b *bytes.Buffer) (err error) {
 }
 
 func (p *Processes) parse() error {
-	return p.Parser.Parse(p.Data)
+	return p.parser.Parse(p.data)
 }

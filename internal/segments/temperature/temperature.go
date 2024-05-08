@@ -13,15 +13,15 @@ type Temperature struct {
 	common.PeriodicParser
 	common.Template
 
-	Data   []Data
-	Parser *TemperatureParser
+	data   []data
+	parser *TemperatureParser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var t Temperature
 	var err error
 
-	t.Parser, err = NewTemperatureParser()
+	t.parser, err = NewTemperatureParser()
 	if err != nil {
 		return &t, err
 	}
@@ -33,8 +33,8 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 		return &t, fmt.Errorf("Unable to parse Temperature template: %s", err)
 	}
 
-	for _, name := range t.Parser.Names() {
-		t.Data = append(t.Data, Data{Name: name})
+	for _, name := range t.parser.Names() {
+		t.data = append(t.data, data{Name: name})
 	}
 
 	return &t, nil
@@ -47,8 +47,8 @@ func (t *Temperature) Refresh() {
 func (t *Temperature) read(b *bytes.Buffer) error {
 	var err error
 
-	for i := range t.Data {
-		err = t.Tmpl.Execute(b, t.Data[i])
+	for i := range t.data {
+		err = t.Tmpl.Execute(b, t.data[i])
 		if err != nil {
 			break
 		}
@@ -58,5 +58,5 @@ func (t *Temperature) read(b *bytes.Buffer) error {
 }
 
 func (t *Temperature) parse() error {
-	return t.Parser.Parse(t.Data)
+	return t.parser.Parse(t.data)
 }

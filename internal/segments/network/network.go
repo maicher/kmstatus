@@ -13,17 +13,17 @@ type Network struct {
 	common.PeriodicParser
 	common.Template
 
-	Data   []Data
-	Parser *NetworkParser
+	data   []data
+	parser *NetworkParser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var n Network
 	var err error
 
-	n.Data = make([]Data, 10)
+	n.data = make([]data, 10)
 
-	n.Parser, err = NewNetworkParser()
+	n.parser, err = NewNetworkParser()
 	if err != nil {
 		return &n, err
 	}
@@ -44,8 +44,8 @@ func (n *Network) Refresh() {
 func (n *Network) read(b *bytes.Buffer) error {
 	var err error
 
-	for i := range n.Data {
-		err = n.Tmpl.Execute(b, n.Data[i])
+	for i := range n.data {
+		err = n.Tmpl.Execute(b, n.data[i])
 		if err != nil {
 			break
 		}
@@ -55,5 +55,5 @@ func (n *Network) read(b *bytes.Buffer) error {
 }
 
 func (n *Network) parse() error {
-	return n.Parser.Parse(n.Data)
+	return n.parser.Parse(n.data)
 }
