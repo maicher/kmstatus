@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-type MemParser struct {
+type Parser struct {
 	file *os.File
 }
 
 var meminfoFilePath = "/proc/meminfo"
 
-func (p *MemParser) Parse(d *data) error {
+func (p *Parser) Parse(d *data) error {
 	var free, buffers, cached, swapFree int
 
 	p.scanByLines(func(line string) {
@@ -43,8 +43,8 @@ func (p *MemParser) Parse(d *data) error {
 	return nil
 }
 
-func NewMemParser() (*MemParser, error) {
-	var p MemParser
+func NewParser() (*Parser, error) {
+	var p Parser
 	var err error
 
 	p.file, err = os.Open(meminfoFilePath)
@@ -55,7 +55,7 @@ func NewMemParser() (*MemParser, error) {
 	return &p, nil
 }
 
-func (p MemParser) scanByLines(f func(line string)) {
+func (p Parser) scanByLines(f func(line string)) {
 	p.file.Seek(0, 0)
 	s := bufio.NewScanner(p.file)
 	s.Split(bufio.ScanLines)

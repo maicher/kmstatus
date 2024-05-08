@@ -8,16 +8,10 @@ import (
 	"strings"
 )
 
-type BluetoothParser struct {
+type Parser struct {
 }
 
-func NewBluetoothParser() (*BluetoothParser, error) {
-	var p BluetoothParser
-
-	return &p, nil
-}
-
-func (p *BluetoothParser) Parse(data *data) error {
+func (p *Parser) Parse(data *data) error {
 	err := exec.Command("systemctl", "is-active", "--quiet", "bluetooth").Run()
 	if err == nil {
 		data.IsServiceActive = true

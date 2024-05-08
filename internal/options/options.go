@@ -79,7 +79,7 @@ func Parse() Options {
 	flag.BoolVar(&opts.Refresh, "r", false, "")
 
 	f := flag.CommandLine.Output()
-	flag.Usage = func() { fmt.Fprintf(f, help) }
+	flag.Usage = func() { fmt.Fprint(f, help) }
 	flag.Parse()
 
 	opts.ControlCmd = opts.buildControlCmd()

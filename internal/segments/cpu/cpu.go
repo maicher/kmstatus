@@ -37,7 +37,7 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 
 	err = c.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &c, fmt.Errorf("Unable to parse CPU template: %s", err)
+		return &c, fmt.Errorf("unable to parse CPU template: %s", err)
 	}
 
 	return &c, nil

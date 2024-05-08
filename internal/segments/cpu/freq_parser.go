@@ -43,7 +43,7 @@ func (p *FreqParser) Parse(freq *int) error {
 		f.Seek(0, 0)
 		_, err := fmt.Fscanf(f, "%d", &val)
 		if err != nil {
-			return fmt.Errorf("Freq parser %s: %w", f.Name(), err)
+			return fmt.Errorf("CPU freq parser %s: %w", f.Name(), err)
 		}
 		sum = sum + val
 	}

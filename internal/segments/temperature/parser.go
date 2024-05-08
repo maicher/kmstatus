@@ -15,12 +15,12 @@ type sensor struct {
 	file *os.File
 }
 
-type TemperatureParser struct {
+type Parser struct {
 	sensors []sensor
 }
 
-func NewTemperatureParser() (*TemperatureParser, error) {
-	var p TemperatureParser
+func NewParser() (*Parser, error) {
+	var p Parser
 
 	paths, err := filepath.Glob(globIntel)
 	if err == nil && len(paths) > 0 {
@@ -32,17 +32,17 @@ func NewTemperatureParser() (*TemperatureParser, error) {
 		return newTemperatureParserAMD(paths)
 	}
 
-	return &p, fmt.Errorf("Temp parser: no files matching pattern %s nor %s", globIntel, globAMD)
+	return &p, fmt.Errorf("temp parser: no files matching pattern %s nor %s", globIntel, globAMD)
 }
 
-func (p *TemperatureParser) Parse(data []data) error {
+func (p *Parser) Parse(data []data) error {
 	var val int
 
 	for i, sensor := range p.sensors {
 		sensor.file.Seek(0, 0)
 		_, err := fmt.Fscanf(sensor.file, "%d", &val)
 		if err != nil {
-			return fmt.Errorf("Temp parser %s: %w", sensor.file.Name(), err)
+			return fmt.Errorf("temp parser %s: %w", sensor.file.Name(), err)
 		}
 
 		data[i].Value = val / 1000
@@ -51,7 +51,7 @@ func (p *TemperatureParser) Parse(data []data) error {
 	return nil
 }
 
-func (p *TemperatureParser) Names() (names []string) {
+func (p *Parser) Names() (names []string) {
 	for _, sensor := range p.sensors {
 		names = append(names, sensor.name)
 	}
@@ -59,14 +59,14 @@ func (p *TemperatureParser) Names() (names []string) {
 	return names
 }
 
-func newTemperatureParserIntel(paths []string) (*TemperatureParser, error) {
-	var p TemperatureParser
+func newTemperatureParserIntel(paths []string) (*Parser, error) {
+	var p Parser
 
 	p.sensors = make([]sensor, len(paths))
 	for i, path := range paths {
 		file, err := os.Open(path)
 		if err != nil {
-			return &p, fmt.Errorf("Temp parser: %s", err)
+			return &p, fmt.Errorf("temp parser: %s", err)
 		}
 
 		p.sensors[i].name = fmt.Sprintf("CPU%d", i)
@@ -76,14 +76,14 @@ func newTemperatureParserIntel(paths []string) (*TemperatureParser, error) {
 	return &p, nil
 }
 
-func newTemperatureParserAMD(paths []string) (*TemperatureParser, error) {
-	var p TemperatureParser
+func newTemperatureParserAMD(paths []string) (*Parser, error) {
+	var p Parser
 
 	p.sensors = make([]sensor, len(paths))
 	for i, path := range paths {
 		file, err := os.Open(path)
 		if err != nil {
-			return &p, fmt.Errorf("Temp parser: %s", err)
+			return &p, fmt.Errorf("temp parser: %s", err)
 		}
 
 		name, err := os.ReadFile(strings.ReplaceAll(path, "temp1_input", "name"))

@@ -14,23 +14,17 @@ type Audio struct {
 	common.Template
 
 	data   data
-	parser *AudioParser
+	parser *Parser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var a Audio
-	var err error
-
-	a.parser, err = NewAudioParser()
-	if err != nil {
-		return &a, err
-	}
 
 	a.PeriodicParser = common.NewPeriodicParser(a.read, a.parse, refreshInterval)
 
-	err = a.NewTemplate(tmpl, helpers)
+	err := a.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &a, fmt.Errorf("Unable to parse Audio template: %s", err)
+		return &a, fmt.Errorf("unable to parse Audio template: %s", err)
 	}
 
 	return &a, nil

@@ -16,7 +16,7 @@ type Processes struct {
 	common.Template
 
 	data   []data
-	parser *ProcessesParser
+	parser *Parser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
@@ -25,7 +25,7 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var r *strings.Reader
 	var d data
 
-	p.parser, err = NewProcessesParser()
+	p.parser, err = NewParser()
 	if err != nil {
 		return &p, err
 	}

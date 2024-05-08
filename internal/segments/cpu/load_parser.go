@@ -28,7 +28,7 @@ func NewLoadParser() (*LoadParser, error) {
 	p.statFile, err = os.Open(statFilePath)
 
 	if err != nil {
-		return &p, fmt.Errorf("Error initializing CPU load parser: %s", err)
+		return &p, fmt.Errorf("error initializing CPU load parser: %s", err)
 	}
 
 	return &p, nil

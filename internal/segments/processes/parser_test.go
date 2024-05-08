@@ -15,7 +15,7 @@ func Test_ProcessesParser(t *testing.T) {
 	d = append(d, data{icon: "F", phrase: "firefox"})
 	d = append(d, data{icon: "X", phrase: "xxx"})
 
-	parser := ProcessesParser{command: path.Join(basePath, "internal/test/ps_test")}
+	parser := Parser{command: path.Join(basePath, "internal/test/ps_test")}
 	err := parser.Parse(d)
 	if err != nil {
 		t.Fatalf("Error: %s, want: nil", err)

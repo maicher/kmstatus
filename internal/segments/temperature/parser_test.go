@@ -11,7 +11,7 @@ func Test_TempParser_Parse_FileCanNotBeParsed(t *testing.T) {
 	f := test.NewTempFile()
 	test.WriteLine(f, "bla bla")
 
-	parser := TemperatureParser{}
+	parser := Parser{}
 	parser.sensors = append(parser.sensors, sensor{file: f})
 	err := parser.Parse(data)
 
@@ -25,7 +25,7 @@ func Test_TempParser_Parse_FileCanBeParsed(t *testing.T) {
 	f := test.NewTempFile()
 	test.WriteLine(f, "30000")
 
-	parser := TemperatureParser{}
+	parser := Parser{}
 	parser.sensors = append(parser.sensors, sensor{file: f})
 	err := parser.Parse(data)
 

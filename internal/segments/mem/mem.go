@@ -14,14 +14,14 @@ type Mem struct {
 	common.Template
 
 	data   data
-	parser *MemParser
+	parser *Parser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var m Mem
 	var err error
 
-	m.parser, err = NewMemParser()
+	m.parser, err = NewParser()
 	if err != nil {
 		return &m, err
 	}
@@ -30,7 +30,7 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 
 	err = m.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &m, fmt.Errorf("Unable to parse Mem template: %s", err)
+		return &m, fmt.Errorf("unable to parse Mem template: %s", err)
 	}
 
 	return &m, nil

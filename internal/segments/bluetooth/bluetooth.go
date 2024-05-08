@@ -14,23 +14,17 @@ type Bluetooth struct {
 	common.Template
 
 	data   data
-	parser *BluetoothParser
+	parser *Parser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var bt Bluetooth
-	var err error
-
-	bt.parser, err = NewBluetoothParser()
-	if err != nil {
-		return &bt, err
-	}
 
 	bt.PeriodicParser = common.NewPeriodicParser(bt.read, bt.parse, refreshInterval)
 
-	err = bt.NewTemplate(tmpl, helpers)
+	err := bt.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &bt, fmt.Errorf("Unable to parse Bluetooth template: %s", err)
+		return &bt, fmt.Errorf("unable to parse Bluetooth template: %s", err)
 	}
 
 	return &bt, nil

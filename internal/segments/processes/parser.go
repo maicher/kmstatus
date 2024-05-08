@@ -7,18 +7,18 @@ import (
 	"strings"
 )
 
-type ProcessesParser struct {
+type Parser struct {
 	command string
 }
 
-func NewProcessesParser() (*ProcessesParser, error) {
-	var p ProcessesParser
+func NewParser() (*Parser, error) {
+	var p Parser
 	p.command = "ps"
 
 	return &p, nil
 }
 
-func (p *ProcessesParser) Parse(data []data) error {
+func (p *Parser) Parse(data []data) error {
 	var buf bytes.Buffer
 
 	cmd := exec.Command(p.command, "-e", "-o", "comm=")

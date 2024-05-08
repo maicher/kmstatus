@@ -16,7 +16,7 @@ func Test_MemParser(t *testing.T) {
 	f.WriteString("enp6s0: 100 1361812    0    0    0     0          0        19 200  565252    0    0    0     0       0          0\n")
 
 	d := make([]data, 5)
-	parser := NetworkParser{file: f}
+	parser := Parser{file: f}
 	parser.dataBuf = make(map[string]data)
 	err := parser.Parse(d)
 	if err != nil {

@@ -14,12 +14,12 @@ type IPC struct {
 func (i *IPC) Send(text string) error {
 	conn, err := net.Dial("unix", i.SocketPath)
 	if err != nil {
-		return fmt.Errorf("Main process is not running: Error connecting to socket: %s", err)
+		return fmt.Errorf("main process is not running: Error connecting to socket: %s", err)
 	}
 
 	_, err = conn.Write([]byte(text))
 	if err != nil {
-		return fmt.Errorf("Error sending message: %s", err)
+		return fmt.Errorf("error sending message: %s", err)
 
 	}
 
@@ -31,7 +31,7 @@ func (i *IPC) Listen(f func(string)) error {
 
 	i.listener, err = net.Listen("unix", i.SocketPath)
 	if err != nil {
-		return fmt.Errorf("Error creating listener: %s", err)
+		return fmt.Errorf("error creating listener: %s", err)
 	}
 
 	for {
@@ -44,7 +44,7 @@ func (i *IPC) Listen(f func(string)) error {
 		buffer := make([]byte, 1024)
 		n, err := conn.Read(buffer)
 		if err != nil {
-			return fmt.Errorf("Error reading: %s", err)
+			return fmt.Errorf("error reading: %s", err)
 		}
 
 		f(string(buffer[:n]))

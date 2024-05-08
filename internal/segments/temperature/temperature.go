@@ -14,14 +14,14 @@ type Temperature struct {
 	common.Template
 
 	data   []data
-	parser *TemperatureParser
+	parser *Parser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var t Temperature
 	var err error
 
-	t.parser, err = NewTemperatureParser()
+	t.parser, err = NewParser()
 	if err != nil {
 		return &t, err
 	}
@@ -30,7 +30,7 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 
 	err = t.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &t, fmt.Errorf("Unable to parse Temperature template: %s", err)
+		return &t, fmt.Errorf("unable to parse Temperature template: %s", err)
 	}
 
 	for _, name := range t.parser.Names() {

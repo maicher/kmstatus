@@ -38,11 +38,11 @@ func humanUnit(unit int, precision int, v int, x string) string {
 func ljust(num int, x any) string {
 	var s string
 
-	switch x.(type) {
+	switch x := x.(type) {
 	case string:
-		s = x.(string)
+		s = x
 	case int:
-		s = strconv.Itoa(x.(int))
+		s = strconv.Itoa(x)
 	}
 
 	l := num - len(s)

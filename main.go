@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	_ "embed"
+
 	"fmt"
 	"os"
 	"os/signal"
@@ -20,6 +21,9 @@ var version string
 
 //go:embed doc.txt
 var doc string
+
+//go:embed internal/config/kmstatusrc.example.toml
+var kmstatusrcExample string
 
 func main() {
 	var text string
@@ -53,7 +57,7 @@ func main() {
 	}
 
 	// Init main process.
-	c, err := config.New(opts.ConfigPath)
+	c, err := config.New(opts.ConfigPath, kmstatusrcExample)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

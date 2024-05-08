@@ -6,14 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
-	_ "embed"
-
 	"github.com/BurntSushi/toml"
 	"github.com/maicher/kmstatus/internal/segments"
 )
-
-//go:embed kmstatusrc.example.toml
-var kmstatusrcExample string
 
 type Config struct {
 	Segments []segments.Config `toml:"segment"`
@@ -33,7 +28,7 @@ func (c *Config) MinInterval() time.Duration {
 	return interval
 }
 
-func New(path string) (Config, error) {
+func New(path, kmstatusrcExample string) (Config, error) {
 	if path != "" {
 		return parseConfig(path)
 	}
@@ -55,15 +50,15 @@ func New(path string) (Config, error) {
 
 	}
 
-	return parseDefaultConfig()
+	return parseDefaultConfig(kmstatusrcExample)
 }
 
-func parseDefaultConfig() (Config, error) {
+func parseDefaultConfig(kmstatusrcExample string) (Config, error) {
 	var c Config
 
 	err := toml.Unmarshal([]byte(kmstatusrcExample), &c)
 	if err != nil {
-		return c, fmt.Errorf("Unable to parse default config file: %s", err)
+		return c, fmt.Errorf("unable to parse default config file: %s", err)
 	}
 
 	return c, nil
@@ -73,14 +68,14 @@ func parseConfig(path string) (Config, error) {
 	var c Config
 	bytes, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
-		return c, fmt.Errorf("Invalid path to the config file")
+		return c, fmt.Errorf("invalid path to the config file")
 	} else if err != nil {
-		return c, fmt.Errorf("Unable to read config file %s: %s", path, err)
+		return c, fmt.Errorf("unable to read config file %s: %s", path, err)
 	}
 
 	err = toml.Unmarshal(bytes, &c)
 	if err != nil {
-		return c, fmt.Errorf("Unable to parse default config file: %s", err)
+		return c, fmt.Errorf("unable to parse default config file: %s", err)
 	}
 
 	return c, nil

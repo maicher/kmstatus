@@ -8,16 +8,10 @@ import (
 	"strings"
 )
 
-type AudioParser struct {
+type Parser struct {
 }
 
-func NewAudioParser() (*AudioParser, error) {
-	var p AudioParser
-
-	return &p, nil
-}
-
-func (p *AudioParser) Parse(data *data) error {
+func (p *Parser) Parse(data *data) error {
 	var buf bytes.Buffer
 	var r *strings.Reader
 

@@ -66,7 +66,7 @@ DirectMap2M:    10096640 kB
 DirectMap1G:    25165824 kB`)
 
 	d := data{}
-	parser := MemParser{file: f}
+	parser := Parser{file: f}
 	err := parser.Parse(&d)
 
 	if err != nil {

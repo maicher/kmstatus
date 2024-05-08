@@ -15,11 +15,10 @@ type Clock struct {
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var c Clock
-	var err error
 
-	err = c.NewTemplate(tmpl, helpers)
+	err := c.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &c, fmt.Errorf("Unable to parse Clock template: %s", err)
+		return &c, fmt.Errorf("unable to parse Clock template: %s", err)
 	}
 
 	return &c, nil

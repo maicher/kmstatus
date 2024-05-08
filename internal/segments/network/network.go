@@ -14,7 +14,7 @@ type Network struct {
 	common.Template
 
 	data   []data
-	parser *NetworkParser
+	parser *Parser
 }
 
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
@@ -23,14 +23,14 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 
 	n.data = make([]data, 10)
 
-	n.parser, err = NewNetworkParser()
+	n.parser, err = NewParser()
 	if err != nil {
 		return &n, err
 	}
 
 	err = n.NewTemplate(tmpl, helpers)
 	if err != nil {
-		return &n, fmt.Errorf("Unable to parse Network template: %s", err)
+		return &n, fmt.Errorf("unable to parse Network template: %s", err)
 	}
 
 	n.PeriodicParser = common.NewPeriodicParser(n.read, n.parse, refreshInterval)
