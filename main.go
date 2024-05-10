@@ -89,15 +89,16 @@ func main() {
 	// check if socket file already exists
 	refresh := make(chan struct{})
 	render := make(chan struct{})
+	textCh := make(chan string)
 	go func() {
 		err := ipc.Listen(func(cmd string) {
 			switch cmd {
 			case "cmd:refresh":
 				refresh <- struct{}{}
 			case "cmd:unsetText":
-				text = ""
+				textCh <- ""
 			default:
-				text = " " + cmd + " "
+				textCh <- " " + cmd + " "
 			}
 
 			render <- struct{}{}
@@ -124,6 +125,7 @@ func main() {
 mainLoop:
 	for {
 		select {
+		case text = <-textCh:
 		case <-render:
 			buf.WriteString(text)
 			segmentsCollection.Read(&buf)
