@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	_ "embed"
 	"os/signal"
 	"syscall"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/maicher/kmstatus/internal/config"
 	"github.com/maicher/kmstatus/internal/ipc"
+	"github.com/maicher/kmstatus/internal/kmstatus"
 	"github.com/maicher/kmstatus/internal/options"
 	"github.com/maicher/kmstatus/internal/segments"
 	"github.com/maicher/kmstatus/internal/ui"
@@ -63,82 +63,66 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 	defer ipc.CloseListener()
 
 	// Initialize segments
-	segmentsCollection := segments.New()
+	segs := segments.New()
 	for _, p := range c.Segments {
-		err = segmentsCollection.AppendNewSegment(p)
+		err = segs.AppendNewSegment(p)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Initialize view and write start message.
+	// Initialize view.
 	view, err := ui.NewView(xWindow)
 	if err != nil {
 		return err
 	}
 
-	buf := bytes.Buffer{}
-	buf.WriteString("Starting...")
-	view.Flush(&buf)
-	time.Sleep(50 * time.Millisecond)
+	// Initialize.
+	kmst := kmstatus.New(view, segs)
+	defer kmst.Terminate()
 
-	// Listen
-	refresh := make(chan struct{})
-	render := make(chan struct{})
-	textCh := make(chan string)
-	errCh := make(chan error)
+	kmst.SetGreeting("Starting...")
+	time.Sleep(50 * time.Millisecond)
+	kmst.Render() // Render for the first time
+
+	errCh := make(chan error, 1)
+	terminate := make(chan os.Signal, 1)
+	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
+
+	// Listen.
 	go func() {
 		err := ipc.Listen(func(cmd string) {
 			switch cmd {
 			case "cmd:refresh":
-				refresh <- struct{}{}
+				kmst.Refresh()
 			case "cmd:unsetText":
-				textCh <- ""
+				kmst.SetText("")
 			default:
-				textCh <- " " + cmd + " "
+				kmst.SetText(" " + cmd + " ")
 			}
 
-			render <- struct{}{}
+			kmst.Render() // Render after receiving IPC command
 		})
 
 		if err != nil {
 			errCh <- err
+
 			return
 		}
 	}()
 
-	// Main loop
-	terminate := make(chan os.Signal, 1)
-	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
-
+	// Main loop.
 	ticker := time.NewTicker(c.MinInterval())
-	go func() {
-		render <- struct{}{}
-		for range ticker.C {
-			render <- struct{}{}
-		}
-	}()
-
-	var text string
-mainLoop:
 	for {
 		select {
-		case text = <-textCh:
-		case <-render:
-			buf.WriteString(text)
-			segmentsCollection.Read(&buf)
-			view.Flush(&buf)
-		case <-refresh:
-			segmentsCollection.Refresh()
+		case <-ticker.C:
+			kmst.Render() // Render periodically
 		case err = <-errCh:
-			fmt.Println(err)
-			break mainLoop
+			return err
 		case <-terminate:
-			break mainLoop
+			return nil
 		}
 	}
-
-	return nil
 }
 
 func sendCmdToMainProcess(cmd, socketPath string) error {
