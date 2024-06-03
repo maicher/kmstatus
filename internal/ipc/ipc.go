@@ -3,7 +3,6 @@ package ipc
 import (
 	"fmt"
 	"net"
-	"os"
 )
 
 type IPC struct {
@@ -14,12 +13,12 @@ type IPC struct {
 func (i *IPC) Send(text string) error {
 	conn, err := net.Dial("unix", i.SocketPath)
 	if err != nil {
-		return fmt.Errorf("main process is not running: Error connecting to socket: %s", err)
+		return fmt.Errorf("unable to send command to main process, because the main process is not running: %s", err)
 	}
 
 	_, err = conn.Write([]byte(text))
 	if err != nil {
-		return fmt.Errorf("error sending message: %s", err)
+		return fmt.Errorf("unable to send command to main process: %s", err)
 
 	}
 
@@ -51,9 +50,11 @@ func (i *IPC) Listen(f func(string)) error {
 	}
 }
 
-func (i *IPC) Close() {
-	if i.listener != nil {
-		i.listener.Close()
-		os.Remove(i.SocketPath)
+func (i *IPC) CloseListener() {
+	if i.listener == nil {
+		return
 	}
+
+	// Close also removes the socket file.
+	i.listener.Close()
 }

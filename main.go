@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 	_ "embed"
-
-	"fmt"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"fmt"
+	"os"
 
 	"github.com/maicher/kmstatus/internal/config"
 	"github.com/maicher/kmstatus/internal/ipc"
@@ -26,7 +26,8 @@ var doc string
 var kmstatusrcExample string
 
 func main() {
-	var text string
+	var err error
+
 	opts := options.Parse()
 
 	// Print version and exit.
@@ -41,43 +42,39 @@ func main() {
 		os.Exit(0)
 	}
 
-	ipc := ipc.IPC{
-		SocketPath: opts.SocketPath,
+	if opts.ControlCmd == "" {
+		err = runMainProcess(opts.ConfigPath, opts.SocketPath, opts.XWindow)
+	} else {
+		err = sendCmdToMainProcess(opts.ControlCmd, opts.SocketPath)
 	}
-
-	// Send control command to already running main process and exit.
-	if opts.ControlCmd != "" {
-		err := ipc.Send(opts.ControlCmd)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		os.Exit(0)
-	}
-
-	// Init main process.
-	c, err := config.New(opts.ConfigPath, kmstatusrcExample)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func runMainProcess(configPath, socketPath string, xWindow bool) error {
+	c, err := config.New(configPath, kmstatusrcExample)
+	if err != nil {
+		return err
+	}
+
+	ipc := ipc.IPC{SocketPath: socketPath}
+	defer ipc.CloseListener()
 
 	// Initialize segments
 	segmentsCollection := segments.New()
 	for _, p := range c.Segments {
 		err = segmentsCollection.AppendNewSegment(p)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(4)
+			return err
 		}
 	}
 
 	// Initialize view and write start message.
-	view, err := ui.NewView(opts.XWindow)
+	view, err := ui.NewView(xWindow)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
+		return err
 	}
 
 	buf := bytes.Buffer{}
@@ -86,10 +83,10 @@ func main() {
 	time.Sleep(50 * time.Millisecond)
 
 	// Listen
-	// check if socket file already exists
 	refresh := make(chan struct{})
 	render := make(chan struct{})
 	textCh := make(chan string)
+	errCh := make(chan error)
 	go func() {
 		err := ipc.Listen(func(cmd string) {
 			switch cmd {
@@ -105,12 +102,12 @@ func main() {
 		})
 
 		if err != nil {
-			fmt.Printf("%+v\n", err)
-			os.Exit(2)
+			errCh <- err
+			return
 		}
 	}()
-	defer ipc.Close()
 
+	// Main loop
 	terminate := make(chan os.Signal, 1)
 	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
 
@@ -122,6 +119,7 @@ func main() {
 		}
 	}()
 
+	var text string
 mainLoop:
 	for {
 		select {
@@ -132,8 +130,19 @@ mainLoop:
 			view.Flush(&buf)
 		case <-refresh:
 			segmentsCollection.Refresh()
+		case err = <-errCh:
+			fmt.Println(err)
+			break mainLoop
 		case <-terminate:
 			break mainLoop
 		}
 	}
+
+	return nil
+}
+
+func sendCmdToMainProcess(cmd, socketPath string) error {
+	ipc := ipc.IPC{SocketPath: socketPath}
+
+	return ipc.Send(cmd)
 }
