@@ -5,9 +5,19 @@ import (
 	"net"
 )
 
+type refreshFunc = func()
+type setTextFunc = func(string)
+type unsetTextFunc = func()
+type errorFunc = func(error)
+
 type IPC struct {
 	SocketPath string
 	listener   net.Listener
+
+	RefreshFunc   refreshFunc
+	SetTextFunc   setTextFunc
+	UnsetTextFunc unsetTextFunc
+	ErrorFunc     errorFunc
 }
 
 func (i *IPC) Send(text string) error {
@@ -25,28 +35,48 @@ func (i *IPC) Send(text string) error {
 	return nil
 }
 
-func (i *IPC) Listen(f func(string)) error {
-	var err error
+func (i *IPC) Listen() {
+	var (
+		cmd string
+		err error
+	)
 
 	i.listener, err = net.Listen("unix", i.SocketPath)
 	if err != nil {
-		return fmt.Errorf("error creating listener: %s", err)
+		i.ErrorFunc(fmt.Errorf("error creating listener: %s", err))
+		return
 	}
 
 	for {
 		conn, err := i.listener.Accept()
 		if err != nil {
-			return nil
+			i.ErrorFunc(err)
+			return
 		}
 		defer conn.Close()
 
 		buffer := make([]byte, 1024)
 		n, err := conn.Read(buffer)
 		if err != nil {
-			return fmt.Errorf("error reading: %s", err)
+			i.ErrorFunc(fmt.Errorf("error reading: %s", err))
+			return
 		}
 
-		f(string(buffer[:n]))
+		cmd = string(buffer[:n])
+		switch cmd {
+		case "cmd:refresh":
+			if i.RefreshFunc != nil {
+				i.RefreshFunc()
+			}
+		case "cmd:unsetText":
+			if i.UnsetTextFunc != nil {
+				i.UnsetTextFunc()
+			}
+		default:
+			if i.SetTextFunc != nil {
+				i.SetTextFunc(cmd)
+			}
+		}
 	}
 }
 

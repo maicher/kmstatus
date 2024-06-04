@@ -59,9 +59,6 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 		return err
 	}
 
-	ipc := ipc.IPC{SocketPath: socketPath}
-	defer ipc.CloseListener()
-
 	// Initialize segments
 	segs := segments.New()
 	for _, p := range c.Segments {
@@ -90,26 +87,24 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
 
 	// Listen.
-	go func() {
-		err := ipc.Listen(func(cmd string) {
-			switch cmd {
-			case "cmd:refresh":
-				kmst.Refresh()
-			case "cmd:unsetText":
-				kmst.SetText("")
-			default:
-				kmst.SetText(" " + cmd + " ")
-			}
-
-			kmst.Render() // Render after receiving IPC command
-		})
-
-		if err != nil {
-			errCh <- err
-
-			return
-		}
-	}()
+	ipc := ipc.IPC{SocketPath: socketPath}
+	ipc.RefreshFunc = func() {
+		kmst.Refresh()
+		kmst.Render()
+	}
+	ipc.SetTextFunc = func(text string) {
+		kmst.SetText(" " + text + " ")
+		kmst.Render()
+	}
+	ipc.UnsetTextFunc = func() {
+		kmst.SetText("")
+		kmst.Render()
+	}
+	ipc.ErrorFunc = func(err error) {
+		errCh <- err
+	}
+	go ipc.Listen()
+	defer ipc.CloseListener()
 
 	// Main loop.
 	ticker := time.NewTicker(c.MinInterval())
