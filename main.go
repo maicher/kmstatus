@@ -45,7 +45,7 @@ func main() {
 	if opts.ControlCmd == "" {
 		err = runMainProcess(opts.ConfigPath, opts.SocketPath, opts.XWindow)
 	} else {
-		err = sendCmdToMainProcess(opts.ControlCmd, opts.SocketPath)
+		err = ipc.Send(opts.ControlCmd, opts.SocketPath)
 	}
 	if err != nil {
 		fmt.Println(err)
@@ -87,24 +87,24 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
 
 	// Listen.
-	ipc := ipc.IPC{SocketPath: socketPath}
-	ipc.RefreshFunc = func() {
+	ipc := ipc.Listener{SocketPath: socketPath}
+	ipc.RefreshHandler = func() {
 		kmst.Refresh()
 		kmst.Render()
 	}
-	ipc.SetTextFunc = func(text string) {
+	ipc.SetTextHandler = func(text string) {
 		kmst.SetText(" " + text + " ")
 		kmst.Render()
 	}
-	ipc.UnsetTextFunc = func() {
+	ipc.UnsetTextHandler = func() {
 		kmst.SetText("")
 		kmst.Render()
 	}
-	ipc.ErrorFunc = func(err error) {
+	ipc.ErrorHandler = func(err error) {
 		errCh <- err
 	}
 	go ipc.Listen()
-	defer ipc.CloseListener()
+	defer ipc.Close()
 
 	// Main loop.
 	ticker := time.NewTicker(c.MinInterval())
@@ -118,10 +118,4 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 			return nil
 		}
 	}
-}
-
-func sendCmdToMainProcess(cmd, socketPath string) error {
-	ipc := ipc.IPC{SocketPath: socketPath}
-
-	return ipc.Send(cmd)
 }

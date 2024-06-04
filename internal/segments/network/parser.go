@@ -48,6 +48,10 @@ func (n *Parser) Parse(data []data) error {
 	var r *strings.Reader
 
 	for s.Scan() {
+		if i > len(data)-1 {
+			continue
+		}
+
 		r = strings.NewReader(s.Text())
 		fmt.Fscanln(r, &data[i].Name, &data[i].RxTotal, &ign, &ign, &ign, &ign, &ign, &ign, &ign, &data[i].TxTotal)
 
