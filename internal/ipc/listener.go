@@ -1,6 +1,7 @@
 package ipc
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 )
@@ -22,7 +23,7 @@ type Listener struct {
 
 func (l *Listener) Listen() {
 	var (
-		cmd string
+		cmd Cmd
 		err error
 	)
 
@@ -47,20 +48,25 @@ func (l *Listener) Listen() {
 			return
 		}
 
-		cmd = string(buffer[:n])
-		switch cmd {
-		case "cmd:refresh":
+		err = json.Unmarshal(buffer[:n], &cmd)
+		if err != nil {
+			l.ErrorHandler(err)
+			return
+		}
+		switch cmd.Name {
+		case Refresh:
 			if l.RefreshHandler != nil {
 				l.RefreshHandler()
 			}
-		case "cmd:unsetText":
+		case SetText:
+			if l.SetTextHandler != nil {
+				l.SetTextHandler(cmd.Payload)
+			}
+		case UnsetText:
 			if l.UnsetTextHandler != nil {
 				l.UnsetTextHandler()
 			}
 		default:
-			if l.SetTextHandler != nil {
-				l.SetTextHandler(cmd)
-			}
 		}
 	}
 }

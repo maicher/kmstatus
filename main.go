@@ -26,8 +26,6 @@ var doc string
 var kmstatusrcExample string
 
 func main() {
-	var err error
-
 	opts := options.Parse()
 
 	// Print version and exit.
@@ -42,11 +40,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	if opts.ControlCmd == "" {
-		err = runMainProcess(opts.ConfigPath, opts.SocketPath, opts.XWindow)
-	} else {
-		err = ipc.Send(opts.ControlCmd, opts.SocketPath)
+	if opts.ControlCmd != nil {
+		err := ipc.Send(opts.ControlCmd, opts.SocketPath)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		os.Exit(0)
 	}
+
+	err := runMainProcess(opts.ConfigPath, opts.SocketPath, opts.XWindow)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

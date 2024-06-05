@@ -3,6 +3,8 @@ package options
 import (
 	"flag"
 	"fmt"
+
+	"github.com/maicher/kmstatus/internal/ipc"
 )
 
 var help = `NAME
@@ -48,7 +50,7 @@ type Options struct {
 	UnsetText  bool
 	Refresh    bool
 
-	ControlCmd string
+	ControlCmd *ipc.Cmd
 }
 
 func Parse() Options {
@@ -87,18 +89,18 @@ func Parse() Options {
 	return opts
 }
 
-func (opts Options) buildControlCmd() string {
+func (opts Options) buildControlCmd() *ipc.Cmd {
 	if opts.Text != "" {
-		return opts.Text
+		return ipc.NewSetTextCmd(opts.Text)
 	}
 
 	if opts.Refresh {
-		return "cmd:refresh"
+		return ipc.NewRefreshCmd()
 	}
 
 	if opts.UnsetText {
-		return "cmd:unsetText"
+		return ipc.NewUnsetTextCmd()
 	}
 
-	return ""
+	return nil
 }
