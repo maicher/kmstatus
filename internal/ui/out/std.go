@@ -13,6 +13,5 @@ func NewStd() (*Std, error) {
 }
 
 func (s *Std) SetStatus(buffer *bytes.Buffer) {
-	buffer.WriteString("\n")
-	os.Stdout.Write(buffer.Bytes())
+	os.Stdout.Write(append(buffer.Bytes(), '\n'))
 }

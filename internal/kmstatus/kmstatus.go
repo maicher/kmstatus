@@ -12,8 +12,6 @@ type render struct{}
 type setText struct{ text string }
 
 type KMStatus struct {
-	textBuf  *bytes.Buffer
-	buf      *bytes.Buffer
 	view     *ui.View
 	segments *segments.Segments
 
@@ -22,8 +20,6 @@ type KMStatus struct {
 
 func New(view *ui.View, segs *segments.Segments) *KMStatus {
 	k := KMStatus{
-		textBuf:  &bytes.Buffer{},
-		buf:      &bytes.Buffer{},
 		view:     view,
 		segments: segs,
 		msgQueue: make(chan any),
@@ -54,25 +50,25 @@ func (k *KMStatus) SetGreeting(text string) {
 	b := bytes.Buffer{}
 	b.WriteString(text)
 
-	k.view.Flush(&b)
+	k.view.Render(&b)
 }
 
 func (k *KMStatus) loop() {
-	for msg := range k.msgQueue {
-		k.handleMessage(msg)
-	}
-}
+	statusBuf := &bytes.Buffer{}
+	textBuf := &bytes.Buffer{}
 
-func (k *KMStatus) handleMessage(msg any) {
-	switch msg := msg.(type) {
-	case refresh:
-		k.segments.Refresh()
-	case render:
-		k.buf.WriteString(k.textBuf.String())
-		k.segments.Read(k.buf)
-		k.view.Flush(k.buf)
-	case setText:
-		k.textBuf.Reset()
-		k.textBuf.WriteString(msg.text)
+	for msg := range k.msgQueue {
+		switch msg := msg.(type) {
+		case refresh:
+			k.segments.Refresh()
+		case render:
+			statusBuf.Write(textBuf.Bytes())
+			k.segments.Read(statusBuf)
+			k.view.Render(statusBuf)
+			statusBuf.Reset()
+		case setText:
+			textBuf.Reset()
+			textBuf.WriteString(msg.text)
+		}
 	}
 }

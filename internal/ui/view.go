@@ -32,7 +32,6 @@ func NewView(isX bool) (*View, error) {
 	return &v, nil
 }
 
-func (v *View) Flush(buffer *bytes.Buffer) {
+func (v *View) Render(buffer *bytes.Buffer) {
 	v.display.SetStatus(buffer)
-	buffer.Reset()
 }

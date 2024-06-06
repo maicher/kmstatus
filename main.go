@@ -40,6 +40,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Send a Command to the main process and exit.
 	if opts.ControlCmd != nil {
 		err := ipc.Send(opts.ControlCmd, opts.SocketPath)
 		if err != nil {
@@ -49,6 +50,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Run the main process.
 	err := runMainProcess(opts.ConfigPath, opts.SocketPath, opts.XWindow)
 	if err != nil {
 		fmt.Println(err)
@@ -62,7 +64,7 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 		return err
 	}
 
-	// Initialize segments
+	// Initialize segments.
 	segs := segments.New()
 	for _, p := range c.Segments {
 		err = segs.AppendNewSegment(p)
@@ -89,7 +91,7 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 	terminate := make(chan os.Signal, 1)
 	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
 
-	// Listen.
+	// Listen for commands.
 	ipc := ipc.Listener{SocketPath: socketPath}
 	ipc.RefreshHandler = func() {
 		kmst.Refresh()
