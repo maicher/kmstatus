@@ -7,8 +7,8 @@ import (
 )
 
 func Test_MemParser(t *testing.T) {
-	f := test.NewTempFile()
-	test.WriteLine(f, `MemTotal:       32814068 kB
+	f := test.NewTempFile(t)
+	test.WriteLine(t, f, `MemTotal:       32814068 kB
 MemFree:          782964 kB
 MemAvailable:    6068128 kB
 Buffers:           83328 kB

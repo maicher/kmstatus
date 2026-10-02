@@ -69,7 +69,7 @@ func parseConfig(path string) (Config, error) {
 	var c Config
 	bytes, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
-		return c, fmt.Errorf("invalid path to the config file")
+		return c, fmt.Errorf("config file %s does not exist", path)
 	} else if err != nil {
 		return c, fmt.Errorf("unable to read config file %s: %s", path, err)
 	}

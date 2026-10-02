@@ -17,8 +17,7 @@ func writeNetDev(f *os.File, lines string) {
 }
 
 func Test_Parser_InterfacesChange(t *testing.T) {
-	f := test.NewTempFile()
-	defer f.Close()
+	f := test.NewTempFile(t)
 
 	var d []data
 	parser := Parser{file: f, dataBuf: make(map[string]data)}

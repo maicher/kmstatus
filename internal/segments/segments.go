@@ -62,9 +62,9 @@ func (s *Segments) Read(buf *bytes.Buffer) {
 	}
 }
 
-// Refresh forces segments to get it's data from system files or shell programs.
-// It does refresh cpu and network segments, as their data can only be get
-// in equal time intervals.
+// Refresh forces segments to get their data from system files or shell programs.
+// It does not refresh cpu and network segments, as their data (load, speed)
+// can only be calculated in equal time intervals.
 func (s *Segments) Refresh() {
 	for i := range s.segments {
 		s.segments[i].Refresh()

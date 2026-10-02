@@ -8,8 +8,8 @@ import (
 
 func Test_TempParser_Parse_FileCanNotBeParsed(t *testing.T) {
 	data := make([]data, 1)
-	f := test.NewTempFile()
-	test.WriteLine(f, "bla bla")
+	f := test.NewTempFile(t)
+	test.WriteLine(t, f, "bla bla")
 
 	parser := Parser{}
 	parser.sensors = append(parser.sensors, sensor{file: f})
@@ -22,8 +22,8 @@ func Test_TempParser_Parse_FileCanNotBeParsed(t *testing.T) {
 
 func Test_TempParser_Parse_FileCanBeParsed(t *testing.T) {
 	data := make([]data, 1)
-	f := test.NewTempFile()
-	test.WriteLine(f, "30000")
+	f := test.NewTempFile(t)
+	test.WriteLine(t, f, "30000")
 
 	parser := Parser{}
 	parser.sensors = append(parser.sensors, sensor{file: f})
@@ -40,10 +40,10 @@ func Test_TempParser_Parse_FileCanBeParsed(t *testing.T) {
 
 func Test_TempParser_Parse_OneSensorFails(t *testing.T) {
 	data := make([]data, 2)
-	broken := test.NewTempFile()
-	test.WriteLine(broken, "bla bla")
-	ok := test.NewTempFile()
-	test.WriteLine(ok, "42000")
+	broken := test.NewTempFile(t)
+	test.WriteLine(t, broken, "bla bla")
+	ok := test.NewTempFile(t)
+	test.WriteLine(t, ok, "42000")
 
 	parser := Parser{}
 	parser.sensors = append(parser.sensors, sensor{file: broken}, sensor{file: ok})

@@ -8,8 +8,7 @@ import (
 )
 
 func Test_MemParser(t *testing.T) {
-	f := test.NewTempFile()
-	defer f.Close()
+	f := test.NewTempFile(t)
 
 	f.WriteString("Inter-|   Receive                                                |  Transmit\n")
 	f.WriteString("face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n")

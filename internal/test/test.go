@@ -1,19 +1,29 @@
 package test
 
 import (
-	"log"
 	"os"
+	"testing"
 )
 
-func NewTempFile() *os.File {
-	f, err := os.CreateTemp("", "test")
+// NewTempFile creates a file which is closed and removed when the test finishes.
+func NewTempFile(t testing.TB) *os.File {
+	t.Helper()
+
+	f, err := os.CreateTemp(t.TempDir(), "test")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
+	t.Cleanup(func() { f.Close() })
 
 	return f
 }
 
-func WriteLine(f *os.File, s string) {
-	os.WriteFile(f.Name(), []byte(s+"\n"), 0644)
+// WriteLine replaces the content of the file with s followed by a newline.
+func WriteLine(t testing.TB, f *os.File, s string) {
+	t.Helper()
+
+	err := os.WriteFile(f.Name(), []byte(s+"\n"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

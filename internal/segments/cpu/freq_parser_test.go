@@ -9,8 +9,8 @@ import (
 
 func Test_FreqParser_Parse_FileCanNotBeParsed(t *testing.T) {
 	var freq int
-	f := test.NewTempFile()
-	test.WriteLine(f, "")
+	f := test.NewTempFile(t)
+	test.WriteLine(t, f, "")
 
 	parser := FreqParser{files: []*os.File{f}}
 	err := parser.Parse(&freq)
@@ -22,8 +22,8 @@ func Test_FreqParser_Parse_FileCanNotBeParsed(t *testing.T) {
 
 func Test_FreqParser_Parse_FileCanBeParsed(t *testing.T) {
 	var freq int
-	f := test.NewTempFile()
-	test.WriteLine(f, "1200000")
+	f := test.NewTempFile(t)
+	test.WriteLine(t, f, "1200000")
 
 	parser := FreqParser{files: []*os.File{f}}
 	err := parser.Parse(&freq)

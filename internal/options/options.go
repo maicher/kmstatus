@@ -16,23 +16,24 @@ SYNOPSIS
 
 DESCRIPTION
   Once started, kmstatus will print output every n seconds,
-  where n is the lowest +refreshinterval+ from parser options (default: 1s).
+  where n is the lowest refreshinterval of the configured segments
+  (a segment without refreshinterval is refreshed every 1s).
   To trigger an additional refresh run a control command:
     kmstatus -r
- (communicates with the main process via sockets.)
+  (communicates with the main process via sockets.)
 
 OPTIONS
   --config PATH,    -c   path to a kmstatusrc file
                          if not set, kmstatus will try to look up following paths:
                          $XDG_CONFIG_HOME/kmstatus/kmstatusrc.toml
                          $HOME/.config/kmstatus/kmstatusrc.toml
-  --xwindow,        -x   print output to default's window WM_NAME (instead stdout)
-                         (to use this option kmstatusatus needs to be build with -tag X)
+  --xwindow,        -x   print output to the root window's WM_NAME (instead of stdout)
+                         (to use this option kmstatus needs to be built with -tags X)
   --doc                  print documentation
   --version,        -v   print version
   --socketpath,     -s   a custom path to a socket file
                          (default: /tmp/kmstatus.sock)
-  --text TEXT,      -t   set text control command
+  --text TEXT,      -t   set text control command (an empty TEXT clears the text)
   --text-unset,     -u   unset text control command
   --refresh,        -r   refresh now control command
 

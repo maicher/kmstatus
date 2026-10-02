@@ -6,7 +6,7 @@ See [Documentation](doc.md) for more info.
 
 `kmstatus` displays system information.
 
-Data is organized by a distinct segments, each representing a specific hardware or software component:
+Data is organized in distinct segments, each representing a specific hardware or software component:
 
              󰂯 6%78% 0.8GHz  0.4% ░ 37°   6G/62G(9.6%) [eno1   2k 462] 2024-05-01 08:10:19
     -------------------------------------------------------------------------------------------
@@ -20,7 +20,8 @@ Data is organized by a distinct segments, each representing a specific hardware 
 * Memory
 * Network
 * Clock
-* and a segment for a custom text
+
+Additionally, a custom text can be set at runtime (see below). It is displayed before the segments.
 
 The order of segments as well as the templates are customizable via the [kmstatusrc.toml](internal/config/kmstatusrc.example.toml)
 
@@ -28,7 +29,7 @@ The order of segments as well as the templates are customizable via the [kmstatu
 
 Pull the repository:
 
-    $ git clone https://github.io/maicher/kmstatus
+    $ git clone https://github.com/maicher/kmstatus
     $ cd kmstatus
 
 `kmstatus` can be run in a terminal or as a status bar for [DWM](https://github.com/maicher/dwm).
@@ -58,7 +59,7 @@ Trigger an additional refresh:
 
     kmstatus --refresh
 
-Set and unset text in the text segment:
+Set and unset the custom text:
 
     kmstatus --text TEXT
     kmstatus --text-unset

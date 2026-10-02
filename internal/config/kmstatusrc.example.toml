@@ -41,7 +41,7 @@ parsername = "cpu"
 refreshinterval = "1s"
 #template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}%"""
 template = """{{ .FreqGHz | printf "%4.1f" }}GHz {{ .Load | printf "%4.1f" }}% {{ .Load | bar }}"""
-# https://github.com/maicher/kmstatus/blob/master/internal/hardware/cpu/data.go
+# https://github.com/maicher/kmstatus/blob/master/internal/segments/cpu/data.go
 
 [[segment]]
 parsername = "temperature"
@@ -62,7 +62,7 @@ template = " {{ .Name }}:{{ .Celsius }}°C"
 # template = """ {{ if (.Name | eq "test1") | or (.Name | eq "test2") }}
 # {{ .Value }}°
 # {{ end }}"""
-# https://github.com/maicher/kmstatus/blob/master/internal/hardware/temperature/data.go
+# https://github.com/maicher/kmstatus/blob/master/internal/segments/temperature/data.go
 
 [[segment]]
 parsername = "mem"
