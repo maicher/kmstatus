@@ -1,6 +1,7 @@
 package options
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 
@@ -53,8 +54,9 @@ type Options struct {
 	ControlCmd *ipc.Cmd
 }
 
-func Parse() Options {
+func Parse() (Options, error) {
 	var opts Options
+	var err error
 
 	flag.StringVar(&opts.ConfigPath, "config", "", "")
 	flag.StringVar(&opts.ConfigPath, "c", "", "")
@@ -84,23 +86,41 @@ func Parse() Options {
 	flag.Usage = func() { fmt.Fprint(f, help) }
 	flag.Parse()
 
-	opts.ControlCmd = opts.buildControlCmd()
+	opts.ControlCmd, err = opts.buildControlCmd()
 
-	return opts
+	return opts, err
 }
 
-func (opts Options) buildControlCmd() *ipc.Cmd {
-	if opts.Text != "" {
-		return ipc.NewSetTextCmd(opts.Text)
+func (opts Options) buildControlCmd() (*ipc.Cmd, error) {
+	var cmds []*ipc.Cmd
+
+	// An empty text is a valid command as well, it clears the text.
+	textSet := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "text" || f.Name == "t" {
+			textSet = true
+		}
+	})
+
+	if textSet {
+		cmds = append(cmds, ipc.NewSetTextCmd(opts.Text))
 	}
 
 	if opts.Refresh {
-		return ipc.NewRefreshCmd()
+		cmds = append(cmds, ipc.NewRefreshCmd())
 	}
 
 	if opts.UnsetText {
-		return ipc.NewUnsetTextCmd()
+		cmds = append(cmds, ipc.NewUnsetTextCmd())
 	}
 
-	return nil
+	if len(cmds) > 1 {
+		return nil, errors.New("only one of --text, --text-unset, --refresh can be given at a time")
+	}
+
+	if len(cmds) == 0 {
+		return nil, nil
+	}
+
+	return cmds[0], nil
 }

@@ -8,9 +8,17 @@ type data struct {
 }
 
 func (d data) UsedPercentage() float64 {
+	if d.Total == 0 {
+		return 0
+	}
+
 	return 100 * float64(d.Used) / float64(d.Total)
 }
 
 func (d data) SwapUsedPercentage() float64 {
+	if d.SwapTotal == 0 {
+		return 0
+	}
+
 	return 100 * float64(d.SwapUsed) / float64(d.SwapTotal)
 }

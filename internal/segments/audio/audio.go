@@ -20,12 +20,13 @@ type Audio struct {
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var a Audio
 
-	a.PeriodicParser = common.NewPeriodicParser(a.read, a.parse, refreshInterval)
-
 	err := a.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &a, fmt.Errorf("unable to parse Audio template: %s", err)
 	}
+
+	// Start parsing once the segment is fully initialized.
+	a.PeriodicParser = common.NewPeriodicParser(a.read, a.parse, refreshInterval)
 
 	return &a, nil
 }

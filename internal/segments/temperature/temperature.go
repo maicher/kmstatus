@@ -26,8 +26,6 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 		return &t, err
 	}
 
-	t.PeriodicParser = common.NewPeriodicParser(t.read, t.parse, refreshInterval)
-
 	err = t.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &t, fmt.Errorf("unable to parse Temperature template: %s", err)
@@ -36,6 +34,9 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	for _, name := range t.parser.Names() {
 		t.data = append(t.data, data{Name: name})
 	}
+
+	// Start parsing once the segment is fully initialized.
+	t.PeriodicParser = common.NewPeriodicParser(t.read, t.parse, refreshInterval)
 
 	return &t, nil
 }

@@ -21,8 +21,6 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var n Network
 	var err error
 
-	n.data = make([]data, 10)
-
 	n.parser, err = NewParser()
 	if err != nil {
 		return &n, err
@@ -55,5 +53,5 @@ func (n *Network) read(b *bytes.Buffer) error {
 }
 
 func (n *Network) parse() error {
-	return n.parser.Parse(n.data)
+	return n.parser.Parse(&n.data)
 }

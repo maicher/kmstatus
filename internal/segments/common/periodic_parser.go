@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -47,7 +48,7 @@ func (s PeriodicParser) Loop(r handleReadMsgFunc, p handleParseMsgFunc) {
 		}
 
 		if err != nil {
-			fmt.Printf("%+v\n", err)
+			fmt.Fprintf(os.Stderr, "kmstatus: %s\n", err)
 		}
 	}
 }

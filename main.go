@@ -26,7 +26,11 @@ var doc string
 var kmstatusrcExample string
 
 func main() {
-	opts := options.Parse()
+	opts, err := options.Parse()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(2)
+	}
 
 	// Print version and exit.
 	if opts.Version {
@@ -51,7 +55,7 @@ func main() {
 	}
 
 	// Run the main process.
-	err := runMainProcess(opts.ConfigPath, opts.SocketPath, opts.XWindow)
+	err = runMainProcess(opts.ConfigPath, opts.SocketPath, opts.XWindow)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -110,7 +114,10 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 		kmst.Render()
 	}
 	ipc.SetTextHandler = func(text string) {
-		kmst.SetText(" " + text + " ")
+		if text != "" {
+			text = " " + text + " "
+		}
+		kmst.SetText(text)
 		kmst.Render()
 	}
 	ipc.UnsetTextHandler = func() {

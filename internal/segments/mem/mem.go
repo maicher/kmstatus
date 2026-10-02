@@ -26,12 +26,13 @@ func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 		return &m, err
 	}
 
-	m.PeriodicParser = common.NewPeriodicParser(m.read, m.parse, refreshInterval)
-
 	err = m.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &m, fmt.Errorf("unable to parse Mem template: %s", err)
 	}
+
+	// Start parsing once the segment is fully initialized.
+	m.PeriodicParser = common.NewPeriodicParser(m.read, m.parse, refreshInterval)
 
 	return &m, nil
 }

@@ -39,6 +39,7 @@ func (p *Parser) Parse(data *data) error {
 		return nil
 	}
 
+	data.DeviceType = ""
 	s := bufio.NewScanner(&buf)
 	s.Split(bufio.ScanLines)
 	for s.Scan() {

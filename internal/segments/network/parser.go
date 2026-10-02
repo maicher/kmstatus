@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -30,7 +31,8 @@ func NewParser() (*Parser, error) {
 	return &n, nil
 }
 
-func (n *Parser) Parse(data []data) error {
+// Parse replaces the content of ifaces with the interfaces currently present in the system.
+func (n *Parser) Parse(ifaces *[]data) error {
 	_, err := n.file.Seek(0, 0)
 	if err != nil {
 		return fmt.Errorf("Network parser: %s", err)
@@ -43,39 +45,60 @@ func (n *Parser) Parse(data []data) error {
 	s.Scan()
 	s.Scan()
 
-	var ign int
-	var i int
-	var r *strings.Reader
-
+	*ifaces = (*ifaces)[:0]
 	for s.Scan() {
-		if i > len(data)-1 {
-			continue
+		d, ok := parseLine(s.Text())
+		if ok {
+			*ifaces = append(*ifaces, d)
 		}
-
-		r = strings.NewReader(s.Text())
-		fmt.Fscanln(r, &data[i].Name, &data[i].RxTotal, &ign, &ign, &ign, &ign, &ign, &ign, &ign, &data[i].TxTotal)
-
-		data[i].Name = strings.TrimSuffix(data[i].Name, ":")
-		i++
 	}
 
-	n.calculateSpeed(data)
+	n.calculateSpeed(*ifaces)
 	n.parsedAt = time.Now()
 
 	// Buffer to calculate speed in the next cycle.
-	for _, d := range data {
+	// Interfaces which disappeared are dropped.
+	clear(n.dataBuf)
+	for _, d := range *ifaces {
 		n.dataBuf[d.Name] = d
 	}
 
 	return nil
 }
 
-func (n *Parser) calculateSpeed(data []data) {
+// parseLine parses a line of /proc/net/dev:
+// name: rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed rx_multicast tx_bytes ...
+func parseLine(line string) (d data, ok bool) {
+	name, counters, found := strings.Cut(line, ":")
+	if !found {
+		return d, false
+	}
+
+	fields := strings.Fields(counters)
+	if len(fields) < 9 {
+		return d, false
+	}
+
+	var err1, err2 error
+	d.Name = strings.TrimSpace(name)
+	d.RxTotal, err1 = strconv.Atoi(fields[0])
+	d.TxTotal, err2 = strconv.Atoi(fields[8])
+
+	return d, err1 == nil && err2 == nil
+}
+
+func (n *Parser) calculateSpeed(ifaces []data) {
 	mul := time.Since(n.parsedAt)
 
-	for index, i := range data {
-		data[index].Rx = n.speed(i.RxTotal-n.dataBuf[i.Name].RxTotal, mul)
-		data[index].Tx = n.speed(i.TxTotal-n.dataBuf[i.Name].TxTotal, mul)
+	for i, d := range ifaces {
+		prev, ok := n.dataBuf[d.Name]
+		if !ok {
+			// No previous sample, e.g. the interface just appeared.
+			continue
+		}
+
+		ifaces[i].Rx = n.speed(d.RxTotal-prev.RxTotal, mul)
+		ifaces[i].Tx = n.speed(d.TxTotal-prev.TxTotal, mul)
 	}
 }
 

@@ -22,20 +22,15 @@ type Processes struct {
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var p Processes
 	var err error
-	var r *strings.Reader
-	var d data
 
 	p.parser, err = NewParser()
 	if err != nil {
 		return &p, err
 	}
 
-	s := bufio.NewScanner(strings.NewReader(tmpl))
-	s.Split(bufio.ScanLines)
-	for s.Scan() {
-		r = strings.NewReader(s.Text())
-		fmt.Fscanf(r, "%s %s", &d.icon, &d.phrase)
-		p.data = append(p.data, d)
+	p.data, err = parseTemplate(tmpl)
+	if err != nil {
+		return &p, err
 	}
 
 	p.PeriodicParser = common.NewPeriodicParser(p.read, p.parse, refreshInterval)
@@ -62,4 +57,32 @@ func (p *Processes) read(b *bytes.Buffer) (err error) {
 
 func (p *Processes) parse() error {
 	return p.parser.Parse(p.data)
+}
+
+// parseTemplate parses lines in the format: ICON PROCESS NAME.
+// The process name may contain spaces. Blank lines are skipped.
+func parseTemplate(tmpl string) ([]data, error) {
+	var ds []data
+	var n int
+
+	s := bufio.NewScanner(strings.NewReader(tmpl))
+	s.Split(bufio.ScanLines)
+	for s.Scan() {
+		n++
+
+		line := strings.TrimSpace(s.Text())
+		if line == "" {
+			continue
+		}
+
+		icon := strings.Fields(line)[0]
+		phrase := strings.TrimSpace(line[len(icon):])
+		if phrase == "" {
+			return nil, fmt.Errorf("invalid Processes template, line %d: %q, want: ICON PROCESS", n, s.Text())
+		}
+
+		ds = append(ds, data{icon: icon, phrase: phrase})
+	}
+
+	return ds, nil
 }

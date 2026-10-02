@@ -69,7 +69,7 @@ parsername = "mem"
 refreshinterval = "5s"
 template = """
  {{ .Used | human 0 }}/{{ .Total | human 0 }}({{ .UsedPercentage | printf "%.1f" }}%)
-{{ if .SwapUsed | gt 0 }}
+{{ if gt .SwapUsed 0 }}
  Swap: {{ .SwapUsed | human 0 }}/{{ .SwapTotal | human 0 }} ({{ .SwapUsedPercentage | printf "%.1f"}}%)
 {{ end }}
 """

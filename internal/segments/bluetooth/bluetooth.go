@@ -20,12 +20,13 @@ type Bluetooth struct {
 func New(tmpl string, refreshInterval time.Duration) (types.Segment, error) {
 	var bt Bluetooth
 
-	bt.PeriodicParser = common.NewPeriodicParser(bt.read, bt.parse, refreshInterval)
-
 	err := bt.NewTemplate(tmpl, helpers)
 	if err != nil {
 		return &bt, fmt.Errorf("unable to parse Bluetooth template: %s", err)
 	}
+
+	// Start parsing once the segment is fully initialized.
+	bt.PeriodicParser = common.NewPeriodicParser(bt.read, bt.parse, refreshInterval)
 
 	return &bt, nil
 }

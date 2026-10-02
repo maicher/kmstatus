@@ -13,57 +13,54 @@ type Parser struct {
 }
 
 func (p *Parser) Parse(data *data) error {
-	var buf bytes.Buffer
-	var r *strings.Reader
+	data.OutAvailable, data.OutMuted, data.OutVolume = getVolume()
 
-	err := common.RunCommand(&buf, "pamixer", "--get-mute", "--get-volume")
-	if err == nil {
-		data.OutAvailable = true
-
-		s := bufio.NewScanner(&buf)
-		s.Split(bufio.ScanLines)
-		for s.Scan() {
-			r = strings.NewReader(s.Text())
-			fmt.Fscanf(r, "%t %d", &data.OutMuted, &data.OutVolume)
-		}
-	} else {
-		data.OutAvailable = false
-	}
-
-	var mic string
-
-	buf.Reset()
-	err = common.RunCommand(&buf, "pamixer", "--list-sources")
-	if err == nil {
-		s := bufio.NewScanner(&buf)
-		s.Split(bufio.ScanLines)
-		for s.Scan() {
-			if strings.Contains(s.Text(), "Microphone") {
-				r = strings.NewReader(s.Text())
-				fmt.Fscanf(r, "%s", &mic)
-			}
-		}
-	}
-
+	mic := findMicrophone()
 	if mic == "" {
-		data.InAvailable = false
-
+		data.InAvailable, data.InMuted, data.InVolume = false, false, 0
 		return nil
 	}
+	data.InAvailable, data.InMuted, data.InVolume = getVolume("--source", mic)
 
-	data.InAvailable = true
-	buf.Reset()
-	err = common.RunCommand(&buf, "pamixer", "--source", mic, "--get-mute", "--get-volume")
-	if err == nil {
-		data.InAvailable = true
+	return nil
+}
 
-		s := bufio.NewScanner(&buf)
-		s.Split(bufio.ScanLines)
-		for s.Scan() {
-			r = strings.NewReader(s.Text())
-			fmt.Fscanf(r, "%t %d", &data.InMuted, &data.InVolume)
+// findMicrophone returns the index of the source with "Microphone" in its description.
+// It is not necessarily the default source (which may be e.g. a webcam).
+func findMicrophone() (mic string) {
+	var buf bytes.Buffer
+
+	err := common.RunCommand(&buf, "pamixer", "--list-sources")
+	if err != nil {
+		return ""
+	}
+
+	s := bufio.NewScanner(&buf)
+	s.Split(bufio.ScanLines)
+	for s.Scan() {
+		if strings.Contains(s.Text(), "Microphone") {
+			mic, _, _ = strings.Cut(s.Text(), " ")
 		}
 	}
 
-	return nil
+	return mic
+}
+
+// getVolume reads the mute state and the volume of the default sink,
+// or of a device selected with the additional pamixer args.
+func getVolume(args ...string) (available, muted bool, volume int) {
+	var buf bytes.Buffer
+
+	args = append(args, "--get-mute", "--get-volume")
+	err := common.RunCommand(&buf, "pamixer", args...)
+	if err != nil {
+		return false, false, 0
+	}
+
+	_, err = fmt.Fscanf(&buf, "%t %d", &muted, &volume)
+	if err != nil {
+		return false, false, 0
+	}
+
+	return true, muted, volume
 }

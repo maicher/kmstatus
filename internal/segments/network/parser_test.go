@@ -15,10 +15,10 @@ func Test_MemParser(t *testing.T) {
 	f.WriteString("face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n")
 	f.WriteString("enp6s0: 100 1361812    0    0    0     0          0        19 200  565252    0    0    0     0       0          0\n")
 
-	d := make([]data, 5)
+	var d []data
 	parser := Parser{file: f}
 	parser.dataBuf = make(map[string]data)
-	err := parser.Parse(d)
+	err := parser.Parse(&d)
 	if err != nil {
 		t.Fatalf("Error: %s, want: nil", err)
 	}
@@ -49,7 +49,7 @@ func Test_MemParser(t *testing.T) {
 	}
 
 	parser.parsedAt = time.Now().Add(-2 * time.Second)
-	err = parser.Parse(d)
+	err = parser.Parse(&d)
 	if err != nil {
 		t.Fatalf("Error: %s, want: nil", err)
 	}

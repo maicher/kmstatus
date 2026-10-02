@@ -16,6 +16,7 @@ type KMStatus struct {
 	segments *segments.Segments
 
 	msgQueue chan any
+	done     chan struct{}
 }
 
 func New(view *ui.View, segs *segments.Segments) *KMStatus {
@@ -23,6 +24,7 @@ func New(view *ui.View, segs *segments.Segments) *KMStatus {
 		view:     view,
 		segments: segs,
 		msgQueue: make(chan any),
+		done:     make(chan struct{}),
 	}
 
 	go k.loop()
@@ -31,19 +33,28 @@ func New(view *ui.View, segs *segments.Segments) *KMStatus {
 }
 
 func (k *KMStatus) Refresh() {
-	k.msgQueue <- refresh{}
+	k.send(refresh{})
 }
 
 func (k *KMStatus) Render() {
-	k.msgQueue <- render{}
+	k.send(render{})
 }
 
 func (k *KMStatus) SetText(text string) {
-	k.msgQueue <- setText{text: text}
+	k.send(setText{text: text})
 }
 
+// Terminate stops the loop. Messages sent afterwards are dropped,
+// so a command handled during shutdown does not panic.
 func (k *KMStatus) Terminate() {
-	close(k.msgQueue)
+	close(k.done)
+}
+
+func (k *KMStatus) send(msg any) {
+	select {
+	case k.msgQueue <- msg:
+	case <-k.done:
+	}
 }
 
 func (k *KMStatus) SetGreeting(text string) {
@@ -57,7 +68,15 @@ func (k *KMStatus) loop() {
 	statusBuf := &bytes.Buffer{}
 	textBuf := &bytes.Buffer{}
 
-	for msg := range k.msgQueue {
+	for {
+		var msg any
+
+		select {
+		case msg = <-k.msgQueue:
+		case <-k.done:
+			return
+		}
+
 		switch msg := msg.(type) {
 		case refresh:
 			k.segments.Refresh()
