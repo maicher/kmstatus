@@ -39,8 +39,8 @@ uninstall:
 # doc.md is the source of the documentation.
 # kmstatus.1 (man page) and doc.txt (embedded, printed by --doc) are generated from it.
 doc:
-	pandoc --standalone --to man \
+	pandoc --standalone --from markdown-smart --to man \
 		-V title=KMSTATUS -V section=1 -V header=DOCUMENTATION \
 		-V footer=$(VERSION) -V date="$(shell date +%F)" \
 		doc.md -o kmstatus.1
-	MANWIDTH=80 man ./kmstatus.1 | col -bx > doc.txt
+	MANWIDTH=80 MANROFFOPT="-rHY=0 -dAD=l" man ./kmstatus.1 | col -bx > doc.txt

@@ -44,6 +44,12 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Print the default config (a template for a config file) and exit.
+	if opts.PrintTemplate {
+		fmt.Print(kmstatusrcExample)
+		os.Exit(0)
+	}
+
 	// Send a Command to the main process and exit.
 	if opts.ControlCmd != nil {
 		err := ipc.Send(opts.ControlCmd, opts.SocketPath)

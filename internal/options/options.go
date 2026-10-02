@@ -30,6 +30,8 @@ OPTIONS
   --xwindow,        -x   print output to the root window's WM_NAME (instead of stdout)
                          (to use this option kmstatus needs to be built with -tags X)
   --doc                  print documentation
+  --print-template       print a config template (the default config):
+                         kmstatus --print-template > ~/.config/kmstatus/kmstatusrc.toml
   --version,        -v   print version
   --socketpath,     -s   a custom path to a socket file
                          (default: /tmp/kmstatus.sock)
@@ -38,19 +40,20 @@ OPTIONS
   --refresh,        -r   refresh now control command
 
 CONFIG
-  See the below link for example config:
+  See the below link for the default config:
     https://github.com/maicher/kmstatus/blob/master/internal/config/kmstatusrc.example.toml
 `
 
 type Options struct {
-	ConfigPath string
-	Doc        bool
-	Version    bool
-	XWindow    bool
-	SocketPath string
-	Text       string
-	UnsetText  bool
-	Refresh    bool
+	ConfigPath    string
+	Doc           bool
+	PrintTemplate bool
+	Version       bool
+	XWindow       bool
+	SocketPath    string
+	Text          string
+	UnsetText     bool
+	Refresh       bool
 
 	ControlCmd *ipc.Cmd
 }
@@ -63,6 +66,8 @@ func Parse() (Options, error) {
 	flag.StringVar(&opts.ConfigPath, "c", "", "")
 
 	flag.BoolVar(&opts.Doc, "doc", false, "")
+
+	flag.BoolVar(&opts.PrintTemplate, "print-template", false, "")
 
 	flag.BoolVar(&opts.Version, "version", false, "")
 	flag.BoolVar(&opts.Version, "v", false, "")
