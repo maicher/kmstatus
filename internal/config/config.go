@@ -10,6 +10,9 @@ import (
 	"github.com/maicher/kmstatus/internal/segments"
 )
 
+// Used for segments without the refreshinterval option.
+const DefaultRefreshInterval = time.Second
+
 type Config struct {
 	Segments []segments.Config `toml:"segment"`
 }
@@ -54,9 +57,7 @@ func New(path, kmstatusrcExample string) (Config, error) {
 }
 
 func parseDefaultConfig(kmstatusrcExample string) (Config, error) {
-	var c Config
-
-	err := toml.Unmarshal([]byte(kmstatusrcExample), &c)
+	c, err := decode(kmstatusrcExample)
 	if err != nil {
 		return c, fmt.Errorf("unable to parse default config file: %s", err)
 	}
@@ -73,9 +74,34 @@ func parseConfig(path string) (Config, error) {
 		return c, fmt.Errorf("unable to read config file %s: %s", path, err)
 	}
 
-	err = toml.Unmarshal(bytes, &c)
+	c, err = decode(string(bytes))
 	if err != nil {
-		return c, fmt.Errorf("unable to parse default config file: %s", err)
+		return c, fmt.Errorf("unable to parse config file %s: %s", path, err)
+	}
+
+	return c, nil
+}
+
+func decode(data string) (Config, error) {
+	var c Config
+
+	md, err := toml.Decode(data, &c)
+	if err != nil {
+		return c, err
+	}
+
+	if undecoded := md.Undecoded(); len(undecoded) > 0 {
+		return c, fmt.Errorf("unknown option %q", undecoded[0].String())
+	}
+
+	for i := range c.Segments {
+		if c.Segments[i].RefreshInterval < 0 {
+			return c, fmt.Errorf("segment %d (%s): refreshinterval must be positive", i+1, c.Segments[i].ParserName)
+		}
+
+		if c.Segments[i].RefreshInterval == 0 {
+			c.Segments[i].RefreshInterval = DefaultRefreshInterval
+		}
 	}
 
 	return c, nil

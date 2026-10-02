@@ -11,6 +11,7 @@ func Send(cmd *Cmd, socketPath string) error {
 	if err != nil {
 		return fmt.Errorf("unable to send command to main process, because the main process is not running: %s", err)
 	}
+	defer conn.Close()
 
 	jsonData, err := json.Marshal(cmd)
 	if err != nil {

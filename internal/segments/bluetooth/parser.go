@@ -4,25 +4,27 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"os/exec"
 	"strings"
+
+	"github.com/maicher/kmstatus/internal/segments/common"
 )
 
 type Parser struct {
 }
 
 func (p *Parser) Parse(data *data) error {
-	err := exec.Command("systemctl", "is-active", "--quiet", "bluetooth").Run()
-	if err == nil {
-		data.IsServiceActive = true
-	} else {
-		data.IsServiceActive = false
+	err := common.RunCommand(nil, "systemctl", "is-active", "--quiet", "bluetooth")
+	data.IsServiceActive = err == nil
+
+	// bluetoothctl waits for the bluetoothd indefinitely, do not run it when the service is down.
+	if !data.IsServiceActive {
+		data.IsControllerPowered = false
+		data.DeviceType = ""
+		return nil
 	}
 
 	var buf bytes.Buffer
-	cmd := exec.Command("bluetoothctl", "show")
-	cmd.Stdout = &buf
-	err = cmd.Run()
+	err = common.RunCommand(&buf, "bluetoothctl", "show")
 	if err != nil {
 		data.IsControllerPowered = false
 		return nil
@@ -31,9 +33,7 @@ func (p *Parser) Parse(data *data) error {
 	data.IsControllerPowered = strings.Contains(buf.String(), "Powered: yes")
 
 	buf.Reset()
-	cmd = exec.Command("bluetoothctl", "info")
-	cmd.Stdout = &buf
-	err = cmd.Run()
+	err = common.RunCommand(&buf, "bluetoothctl", "info")
 	if err != nil {
 		data.DeviceType = ""
 		return nil

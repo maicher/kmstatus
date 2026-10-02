@@ -4,8 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"os/exec"
 	"strings"
+
+	"github.com/maicher/kmstatus/internal/segments/common"
 )
 
 type Parser struct {
@@ -15,9 +16,7 @@ func (p *Parser) Parse(data *data) error {
 	var buf bytes.Buffer
 	var r *strings.Reader
 
-	cmd := exec.Command("pamixer", "--get-mute", "--get-volume")
-	cmd.Stdout = &buf
-	err := cmd.Run()
+	err := common.RunCommand(&buf, "pamixer", "--get-mute", "--get-volume")
 	if err == nil {
 		data.OutAvailable = true
 
@@ -33,9 +32,8 @@ func (p *Parser) Parse(data *data) error {
 
 	var mic string
 
-	cmd = exec.Command("pamixer", "--list-sources")
-	cmd.Stdout = &buf
-	err = cmd.Run()
+	buf.Reset()
+	err = common.RunCommand(&buf, "pamixer", "--list-sources")
 	if err == nil {
 		s := bufio.NewScanner(&buf)
 		s.Split(bufio.ScanLines)
@@ -54,9 +52,8 @@ func (p *Parser) Parse(data *data) error {
 	}
 
 	data.InAvailable = true
-	cmd = exec.Command("pamixer", "--source", mic, "--get-mute", "--get-volume")
-	cmd.Stdout = &buf
-	err = cmd.Run()
+	buf.Reset()
+	err = common.RunCommand(&buf, "pamixer", "--source", mic, "--get-mute", "--get-volume")
 	if err == nil {
 		data.InAvailable = true
 

@@ -3,8 +3,9 @@ package processes
 import (
 	"bufio"
 	"bytes"
-	"os/exec"
 	"strings"
+
+	"github.com/maicher/kmstatus/internal/segments/common"
 )
 
 type Parser struct {
@@ -21,9 +22,7 @@ func NewParser() (*Parser, error) {
 func (p *Parser) Parse(data []data) error {
 	var buf bytes.Buffer
 
-	cmd := exec.Command(p.command, "-e", "-o", "comm=")
-	cmd.Stdout = &buf
-	err := cmd.Run()
+	err := common.RunCommand(&buf, p.command, "-e", "-o", "comm=")
 	if err != nil {
 		return err
 	}

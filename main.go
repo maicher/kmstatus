@@ -73,6 +73,15 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 		}
 	}
 
+	// Create the socket before anything is rendered,
+	// so that a second instance fails immediately.
+	ipc := ipc.Listener{SocketPath: socketPath}
+	err = ipc.Open()
+	if err != nil {
+		return err
+	}
+	defer ipc.Close()
+
 	// Initialize view.
 	view, err := ui.NewView(xWindow)
 	if err != nil {
@@ -81,7 +90,11 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 
 	// Initialize.
 	kmst := kmstatus.New(view, segs)
-	defer kmst.Terminate()
+	defer func() {
+		// Stop accepting commands before the message queue is closed.
+		ipc.Close()
+		kmst.Terminate()
+	}()
 
 	kmst.SetGreeting("Starting...")
 	time.Sleep(50 * time.Millisecond)
@@ -92,7 +105,6 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 	signal.Notify(terminate, syscall.SIGINT, syscall.SIGTERM)
 
 	// Listen for commands.
-	ipc := ipc.Listener{SocketPath: socketPath}
 	ipc.RefreshHandler = func() {
 		kmst.Refresh()
 		kmst.Render()
@@ -109,7 +121,6 @@ func runMainProcess(configPath, socketPath string, xWindow bool) error {
 		errCh <- err
 	}
 	go ipc.Listen()
-	defer ipc.Close()
 
 	// Main loop.
 	ticker := time.NewTicker(c.MinInterval())

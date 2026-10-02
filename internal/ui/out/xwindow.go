@@ -21,6 +21,7 @@ import "C"
 import (
 	"bytes"
 	"fmt"
+	"unsafe"
 )
 
 type Window struct {
@@ -42,6 +43,9 @@ func NewWindow() (*Window, error) {
 }
 
 func (w *Window) SetStatus(buffer *bytes.Buffer) {
-	C.XStoreName(w.display, w.defaultroot, C.CString(buffer.String()))
+	name := C.CString(buffer.String())
+	defer C.free(unsafe.Pointer(name))
+
+	C.XStoreName(w.display, w.defaultroot, name)
 	C.XSync(w.display, 0)
 }
